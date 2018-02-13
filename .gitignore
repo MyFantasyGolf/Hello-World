@@ -1,3 +1,4 @@
 dist/
 .git/
 .cache/
+node_modules/
