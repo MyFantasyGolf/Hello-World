@@ -1,0 +1,35 @@
+{
+  "name": "my-fantasy-golf",
+  "version": "1.0.0",
+  "description": "A simple fantasy golf application made by PGA professionals",
+  "main": "index.js",
+  "scripts": {
+    "build": "parcel index.html --out-dir dist",
+    "watch": "parcel index.html --out-dir dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MyFantasyGolf/Hello-World.git"
+  },
+  "keywords": [
+    "fantasy",
+    "golf"
+  ],
+  "author": "Nate Bever",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MyFantasyGolf/Hello-World/issues"
+  },
+  "homepage": "https://github.com/MyFantasyGolf/Hello-World#readme",
+  "dependencies": {
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-router-dom": "^4.2.2"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "node-sass": "^4.7.2",
+    "parcel-bundler": "^1.5.1"
+  }
+}

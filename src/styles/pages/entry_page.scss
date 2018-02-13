@@ -1,0 +1,66 @@
+.golf-background {
+  background-size: cover;
+  background-image: url('../images/golf_course.gif');
+  width: 100%;
+  height: 100%;
+  position: absolute;
+
+  .golf-banner {
+    justify-content: center;
+    padding: 20px;
+    margin-top: 100px;
+    font-size: 50px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: $dark;
+  }
+
+  .big-icon {
+    line-height: 1.1;
+    font-size: 80px;
+  }
+
+  .buttons {
+
+    font-size: 48px;
+    justify-content: center;
+    align-content: space-between;
+    flex-direction: column;
+
+    .big-button {
+      background-color: $dark;
+      opacity: 0.5;
+      color: white;
+      padding: 20px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: 200ms;
+
+      &:hover {
+        opacity: 1.0;
+      }
+    }
+  }
+
+  @media only screen and (min-width: $break_point) {
+    .golf-banner {
+      padding: 20px;
+      margin-top: 100px;
+      font-size: 80px;
+    }
+
+    .big-icon {
+      font-size: 110px;
+    }
+
+    .buttons {
+      flex-direction: row;
+
+      .big-button {
+          margin: 20px;
+          border-radius: 8px;
+      }
+    }
+  }
+}
