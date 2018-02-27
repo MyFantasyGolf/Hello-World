@@ -1,0 +1,17 @@
+{
+  "name": "my-fantasy-golf-server",
+  "version": "1.0.0",
+  "description": "Server for MyFantasyGolf",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nate Bever",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.2",
+    "lodash": "^4.17.5",
+    "mongodb": "^3.0.3"
+  }
+}
