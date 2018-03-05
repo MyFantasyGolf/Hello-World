@@ -11,26 +11,45 @@ const loadHtmlFromFile = (db, htmlFile) => {
 };
 
 const update = (htmlFile) => {
-  const webSchedules = getSchedule(htmlFile);
-  const savedSchedules = conn.db.getSchedules().then( (err, schedules) => {
 
-    const schedulesToFix = webSchedules.filter( (ws) => {
-      if (isNil(schedules)) {
-        return true;
-      }
+  updateSchedules(htmlFile).then(updateScheduleDetails);
+  // for each schedule fill in the details
+}
 
-      const found = schedules.find( (ss) => {
-        if (ss.date === ws.date) {
-          return ss.complete;
+const updateSchedules = (htmlFile) => {
+  const promise = new Promise( (resolve, reject) => {
+    const webSchedules = getSchedule(htmlFile);
+
+    const savedSchedules = conn.db.getSchedules().then( (err, schedules) => {
+      const schedulesToFix = webSchedules.filter( (ws) => {
+        if (isNil(schedules)) {
+          return true;
         }
 
-        return false;
+        const found = schedules.find( (ss) => {
+          if (ss.date === ws.date) {
+            return ss.complete;
+          }
+
+          return false;
+        });
       });
+
+      // save these new schedules
+
+      resolve(schedulesToFix);
     });
   });
 
-  // for each schedule fill in the details
-}
+  return promise;
+};
+
+const updateScheduleDetails = (schedules) => {
+  schedules.forEach( (schedule) => {
+    const results = getScheduleResults(schedule);
+
+  });
+};
 
 const getSchedule = (htmlFile) => {
   let html;
@@ -44,6 +63,12 @@ const getSchedule = (htmlFile) => {
       return scrapeSchdule(body);
     });
   }
+};
+
+const getScheduleResults = (schedule) => {
+  request.get(schedule.espnUrl, (err, response, body) => {
+    return scrapeScheduleResults(body);
+  });
 };
 
 const scrapeSchdule = (html) => {
@@ -128,6 +153,61 @@ const scrapeSchdule = (html) => {
   return tournaments;
 };
 
+const scrapeScheduleResults = (resultsPage) => {
+  const $ = cheerio.load(resultsPage);
+  const rows = $('.player-overview');
+  const results = [];
+
+  rows.each( (index, row) => {
+    results.push(parseResultRow($, row));
+  });
+
+  return results;
+};
+
+const parseResultRow = ($, row) => {
+  const name = $('.full-name', '', row).text();
+  const positionStr = $('.position', '', row).text();
+  const totalScore = $('.totalScore', '', row).text();
+  let officialAmountStr = $('.officialAmount', '', row).text();
+  const cupPoints = $('.cupPoints', '', row).text();
+  const round1 = $('.round1', '', row).text();
+  const round2 = $('.round2', '', row).text();
+  const round3 = $('.round3', '', row).text();
+  const round4 = $('.round4', '', row).text();
+  const relativeScore = $('.relativeScore', '', row).text();
+
+  const nameArray = name.split(' ');
+  const lastName = nameArray.pop();
+  const firstName = nameArray.join(' ');
+  const position = {
+    tied: positionStr.startsWith('T'),
+    pos: (positionStr.startsWith('T')) ? parseInt(positionStr.substr(1)) : positionStr
+  };
+  const rounds = [];
+
+  (!isNil(round1)) ? rounds.push(parseInt(round1)) : null;
+  (!isNil(round2)) ? rounds.push(parseInt(round2)) : null;
+  (!isNil(round3)) ? rounds.push(parseInt(round3)) : null;
+  (!isNil(round4)) ? rounds.push(parseInt(round4)) : null;
+
+  officialAmountStr = officialAmountStr.replace(/,/g, '');
+  officialAmountStr = officialAmountStr.replace(/\$/g, '');
+  const officialAmount = parseFloat(officialAmountStr);
+
+  return {
+    firstName,
+    lastName,
+    totalScore: parseInt(totalScore),
+    cupPoints: parseInt(cupPoints),
+    relativeScore: parseInt(relativeScore),
+    rounds,
+    position,
+    officialAmount
+  };
+};
+
 module.exports = {
-  update
+  update,
+  scrapeScheduleResults
 };
