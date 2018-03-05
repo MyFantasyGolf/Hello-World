@@ -10,8 +10,8 @@ class DBConnection {
       connection = this;
 
       MongoClient.connect('mongodb://localhost:27017', (err, client) => {
-        this.client = client;
-        this.db = this.client.db('myfantasygolf');
+        connection.client = client;
+        connection.db = connection.client.db('myfantasygolf');
       });
     }
 
@@ -38,6 +38,7 @@ class DBConnection {
 }
 
 const db = new DBConnection();
+console.log('created db');
 
 process.on('exit', () => {
   db.close();

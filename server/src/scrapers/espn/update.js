@@ -5,6 +5,7 @@ const request = require('request');
 const isNil = require('lodash/isNil');
 
 const conn = require('../../db/connection');
+const resultsApi = require('../../db/resultsApi');
 
 const loadHtmlFromFile = (db, htmlFile) => {
 
@@ -27,7 +28,7 @@ const updateSchedules = (htmlFile) => {
         }
 
         const found = schedules.find( (ss) => {
-          if (ss.date === ws.date) {
+          if (ss.date === ws.date && !isNil(ss.espnUrl)) {
             return ss.complete;
           }
 
@@ -36,6 +37,7 @@ const updateSchedules = (htmlFile) => {
       });
 
       // save these new schedules
+      resultsApi.saveTourSchedule({year: 2018}, schedulesToFix);
 
       resolve(schedulesToFix);
     });
