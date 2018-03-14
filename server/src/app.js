@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const espn = require('./scrapers/espn/update.js');
+const espn = require('./scrapers/espn/update');
 const fs = require('fs');
 
 const app = express();
@@ -8,8 +8,10 @@ const app = express();
 app.get('/update', (request, response) => {
 
   // try espn first
-  espn.update(path.resolve(__dirname, '..', 'test', 'files', 'espn-schedule.html'));
-  response.send();
+  const updater = new espn.EspnUpdater();
+  updater.update(path.resolve(__dirname, '..', 'test', 'files', 'espn-schedule.html')).then(() => {
+    response.send();
+  });
 });
 
 app.get('/scoreUpdate', (request, response) => {

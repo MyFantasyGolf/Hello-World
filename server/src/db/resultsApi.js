@@ -1,31 +1,50 @@
 const isNil = require('lodash/isNil');
 const conn = require('./connection');
+const moment = require('moment');
 
-const saveTourSchedule = (yearObj, schedule) => {
-  const coll = conn.db.db.collection('tour_years');
-  const year = await coll.findOne({year: yearObj.year});
+const saveTourSchedule = async (schedule) => {
+  const startDate = moment(schedule.date.start, 'MM/DD/YYYY');
 
-  if (isNil(year)) {
-    coll.insertOne({year: yearObj.year, tournaments: schedule});
+  const season = (startDate.month() >= 9 && startDate.month() < 12) ?
+    startDate.year() + 1 : startDate.year();
+
+  const db = await conn.db;
+
+  const coll = db.collection('schedules');
+
+  try {
+    coll.findOneAndUpdate(
+      { year: season},
+      {$push: { schedule: schedule }},
+      {
+        upsert: true
+      }
+    );
   }
-  else {
-      schedule.forEach( (newTournament) => {
-        const tournamentIndex = year.tournaments.findIndex((tournament) => tournament.name == newTournament.name);
+  catch(err) {
+    console.log(err.stack);
+  }
+};
 
-        if (tournamentIndex === -1) {
-          year.tournaments.push(newTournament);
-          return;
+const getSchedules = () => {
+
+  return new Promise( (resolve, reject) => {
+    conn.db.then( (db) => {
+      const coll = db.collection('schedules');
+
+      coll.find({}).toArray((err, results) => {
+
+        if (!isNil(err)) {
+          reject(err);
         }
 
-        year.tournaments[tournamentIndex] = newTournament;
+        resolve(results);
       });
-
-      await coll.save(year);
-  }
-
-  coll.close();
+    });
+  });
 };
 
 module.exports = {
-  saveTourSchedule
+  saveTourSchedule,
+  getSchedules
 };

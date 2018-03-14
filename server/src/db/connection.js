@@ -8,32 +8,40 @@ class DBConnection {
   constructor() {
     if (isUndefined(connection)) {
       connection = this;
-
-      MongoClient.connect('mongodb://localhost:27017', (err, client) => {
-        connection.client = client;
-        connection.db = connection.client.db('myfantasygolf');
-      });
     }
 
     return connection;
   }
 
   get db() {
-    return this._db;
+    return new Promise( (resolve, reject) => {
+      if (isUndefined(this._db)) {
+        MongoClient.connect('mongodb://localhost:27017', (err, client) => {
+          this._client = client;
+          this._db = connection.client.db('myfantasygolf');
+          resolve(this._db);
+        });
+      }
+      else {
+        resolve(this._db);
+      }
+    });
   }
 
   set db(db) {
     this._db = db;
   }
 
-  close() {
-    console.log('Closing DB...');
-    this.client.close();
+  get client() {
+    return this._client;
   }
 
-  getSchedules() {
-    const coll = this.db.collection('schedule');
-    return coll.find({}).toArray();
+  close() {
+    console.log('Closing DB...');
+
+    if (!isUndefined(this.client)) {
+      this.client.close();
+    }
   }
 }
 
@@ -44,6 +52,4 @@ process.on('exit', () => {
   db.close();
 });
 
-module.exports = {
-  db
-};
+module.exports = db;

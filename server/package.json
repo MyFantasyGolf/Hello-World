@@ -4,7 +4,11 @@
   "description": "Server for MyFantasyGolf",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon --inspect --watch ./**/*.js ./src/app.js",
+    "clean": "rm -rf test/lib",
+    "transpile": "npm run clean && babel src --out-dir test/lib --source-maps",
+    "test": "npm run transpile && mocha --require babel-core/register test/**/*.spec.js",
+    "test:debug": "mocha --require babel-core/register --inspect-brk test/**/*.spec.js --watch"
   },
   "author": "Nate Bever",
   "license": "ISC",
@@ -12,6 +16,15 @@
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.2",
     "lodash": "^4.17.5",
+    "moment": "^2.21.0",
     "mongodb": "^3.0.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "chai": "^4.1.2",
+    "mocha": "^5.0.4",
+    "nodemon": "^1.17.2",
+    "sinon": "^4.4.5"
   }
 }

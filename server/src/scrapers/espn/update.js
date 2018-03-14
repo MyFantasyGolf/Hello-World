@@ -2,214 +2,276 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const path = require('path');
 const request = require('request');
+const moment = require('moment');
 const isNil = require('lodash/isNil');
 
-const conn = require('../../db/connection');
 const resultsApi = require('../../db/resultsApi');
 
-const loadHtmlFromFile = (db, htmlFile) => {
+class EspnUpdater {
 
-};
+  update(htmlFile) {
+    return new Promise( (resolve, reject) => {
+      this.updateSchedules(htmlFile).then( (schedules) => {
+        this.updateScheduleDetails(schedules);
+        resolve();
+      });
+    });
+    // for each schedule fill in the details
+  }
 
-const update = (htmlFile) => {
+  updateSchedules(htmlFile) {
+    const promise = new Promise( (resolve, reject) => {
+      const webSchedules = this.getSchedule(htmlFile);
 
-  updateSchedules(htmlFile).then(updateScheduleDetails);
-  // for each schedule fill in the details
-}
-
-const updateSchedules = (htmlFile) => {
-  const promise = new Promise( (resolve, reject) => {
-    const webSchedules = getSchedule(htmlFile);
-
-    const savedSchedules = conn.db.getSchedules().then( (err, schedules) => {
-      const schedulesToFix = webSchedules.filter( (ws) => {
-        if (isNil(schedules)) {
-          return true;
-        }
-
-        const found = schedules.find( (ss) => {
-          if (ss.date === ws.date && !isNil(ss.espnUrl)) {
-            return ss.complete;
+      const savedSchedules = resultsApi.getSchedules().then( (schedules) => {
+        const schedulesToFix = webSchedules.filter( (ws) => {
+          if (isNil(schedules)) {
+            return true;
           }
 
-          return false;
+          const found = schedules.find( (ss) => {
+            if (ss.date === ws.date && !isNil(ss.espnUrl)) {
+              return ss.complete;
+            }
+
+            return false;
+          });
+
+          return true;
         });
+
+        // save these new schedules
+        schedulesToFix.forEach( (schedule) => {
+          schedule.complete = false;
+          resultsApi.saveTourSchedule(schedule)
+        });
+
+        resolve(schedulesToFix);
       });
-
-      // save these new schedules
-      resultsApi.saveTourSchedule({year: 2018}, schedulesToFix);
-
-      resolve(schedulesToFix);
     });
-  });
 
-  return promise;
-};
-
-const updateScheduleDetails = (schedules) => {
-  schedules.forEach( (schedule) => {
-    const results = getScheduleResults(schedule);
-
-  });
-};
-
-const getSchedule = (htmlFile) => {
-  let html;
-
-  if (!isNil(htmlFile)) {
-    const data = fs.readFileSync(htmlFile).toString();
-    return scrapeSchdule(data);
+    return promise;
   }
-  else {
-    request.get('http://www.espn.com/golf/schedule', (err, response, body) => {
-      return scrapeSchdule(body);
+
+  updateScheduleDetails(schedules) {
+    schedules.forEach( (schedule) => {
+      const results = this.getScheduleResults(schedule);
     });
   }
-};
 
-const getScheduleResults = (schedule) => {
-  request.get(schedule.espnUrl, (err, response, body) => {
-    return scrapeScheduleResults(body);
-  });
-};
+  getSchedule(htmlFile) {
 
-const scrapeSchdule = (html) => {
-  const $ = cheerio.load(html);
-  const rows = $('tr');
+    let html;
 
-  const entries = [];
+    if (!isNil(htmlFile)) {
+      const data = fs.readFileSync(htmlFile).toString();
+      return this.scrapeSchdule(data);
+    }
+    else {
+      request.get('http://www.espn.com/golf/schedule', (err, response, body) => {
+        return this.scrapeSchdule(body);
+      });
+    }
+  }
 
-  rows.each( (index, row) => {
-    const tds = $('td', '', row);
+  getScheduleResults(schedule) {
+    // request.get(schedule.espnUrl, (err, response, body) => {
+    //   return this.scrapeScheduleResults(body);
+    // });
+  }
 
-    const texts = tds.map( (index, td) => {
+  scrapeSchdule(html) {
+    const $ = cheerio.load(html);
+    const rows = $('tr');
 
-      let elm = td;
+    const season = $($('select option')[1]).text();
 
-      if (td.children.length > 0 && td.children[0].name === 'b') {
-        elm = td.children[0];
-      }
+    const entries = [];
 
-      const a = $('a', '', elm);
-      const arr = [];
+    rows.each( (index, row) => {
+      const tds = $('td', '', row);
 
-      if (!isNil(a)) {
-        arr.push(a.attr('href'));
-      }
+      const texts = tds.map( (index, td) => {
 
-      if (elm.children.length > 1) {
-        arr.push($(elm.children[0]).text());
-        arr.push($(elm.children[2]).text());
-      }
-      else {
-        arr.push($(td).text());
-      }
+        let elm = td;
 
-      return arr;
+        if (td.children.length > 0 && td.children[0].name === 'b') {
+          elm = td.children[0];
+        }
+
+        const a = $('a', '', elm);
+        const arr = [];
+
+        if (!isNil(a)) {
+          arr.push(a.attr('href'));
+        }
+
+        if (elm.children.length > 1) {
+          arr.push($(elm.children[0]).text());
+          arr.push($(elm.children[2]).text());
+        }
+        else {
+          arr.push($(td).text());
+        }
+
+        return arr;
+      }).get();
+
+      entries.push(texts);
     }).get();
 
-    entries.push(texts);
-  }).get();
-
-  const tournaments = entries.filter( (entry) => {
-    if (entry.length < 10) {
-      return false;
-    }
-
-    if (entry[1] === 'DATE') {
-      return false;
-    }
-
-    return true;
-  }).map( (tourney) => {
-    if (tourney.length === 10 || tourney.length === 11) {
-      const t = {
-        date: tourney[1],
-        espnUrl: tourney[2],
-        title: tourney[3],
-        course: tourney[4],
-        winner: tourney[6],
-        score: tourney[8],
-        purse: tourney[9]
-      };
-
-      if (tourney.length === 11) {
-        t.winner = tourney[8];
-        t.purse = tourney[10];
-        t.score = ''
+    const tournaments = entries.filter( (entry) => {
+      if (entry.length < 10) {
+        return false;
       }
 
-      return t;
+      if (entry[1] === 'DATE') {
+        return false;
+      }
+
+      return true;
+    }).map( (tourney) => {
+
+      const date = this.sanitizeDate(season, tourney[1]);
+
+      if (tourney.length === 10 || tourney.length === 11) {
+
+        const t = {
+          date: date,
+          espnUrl: tourney[2],
+          title: tourney[3],
+          course: tourney[4],
+          winner: tourney[6],
+          score: tourney[8],
+          purse: tourney[9]
+        };
+
+        if (tourney.length === 11) {
+          t.winner = tourney[8];
+          t.purse = tourney[10];
+          t.score = ''
+        }
+
+        return t;
+      }
+
+      return {
+        espnUrl: null,
+        date: date,
+        title: tourney[4],
+        course: tourney[5],
+        lastWinner: tourney[9],
+        purse: tourney[11]
+      };
+    });
+
+    return tournaments;
+  }
+
+  sanitizeDate(seasonText, dateString) {
+    const years = seasonText.split('-');
+    const startYear = parseInt(years[0]);
+    let endYear = parseInt(years[1]);
+
+    if (endYear < 2000) {
+      endYear = endYear + 2000;
     }
 
+    const days = dateString.split('-');
+
+    const start = this.parseDate(days[0].trim(), startYear, endYear).format('MM/DD/YYYY');
+    const end = this.parseDate(days[1].trim(), startYear, endYear).format('MM/DD/YYYY');
+
     return {
-      espnUrl: null,
-      date: tourney[1],
-      title: tourney[4],
-      course: tourney[5],
-      lastWinner: tourney[9],
-      purse: tourney[11]
+      start,
+      end
     };
-  });
+  }
 
-  return tournaments;
-};
+  parseDate(dateString, startYear, endYear) {
+    const mDate = moment(dateString, 'MMM DD');
 
-const scrapeScheduleResults = (resultsPage) => {
-  const $ = cheerio.load(resultsPage);
-  const rows = $('.player-overview');
-  const results = [];
+    // if it's between october and december its last year
+    if (mDate.month() >= 9 && mDate.month() < 12) {
+      mDate.year(startYear);
+    }
+    else {
+      mDate.year(endYear);
+    }
 
-  rows.each( (index, row) => {
-    results.push(parseResultRow($, row));
-  });
+    return mDate;
+  }
 
-  return results;
-};
+  /**
+  This is where we look for the results of everything
+  **/
+  scrapeScheduleResults(resultsPage) {
+    const $ = cheerio.load(resultsPage);
+    const rows = $('.player-overview');
+    const results = [];
 
-const parseResultRow = ($, row) => {
-  const name = $('.full-name', '', row).text();
-  const positionStr = $('.position', '', row).text();
-  const totalScore = $('.totalScore', '', row).text();
-  let officialAmountStr = $('.officialAmount', '', row).text();
-  const cupPoints = $('.cupPoints', '', row).text();
-  const round1 = $('.round1', '', row).text();
-  const round2 = $('.round2', '', row).text();
-  const round3 = $('.round3', '', row).text();
-  const round4 = $('.round4', '', row).text();
-  const relativeScore = $('.relativeScore', '', row).text();
+    rows.each( (index, row) => {
+      results.push(this.parseResultRow($, row));
+    });
 
-  const nameArray = name.split(' ');
-  const lastName = nameArray.pop();
-  const firstName = nameArray.join(' ');
-  const position = {
-    tied: positionStr.startsWith('T'),
-    pos: (positionStr.startsWith('T')) ? parseInt(positionStr.substr(1)) : positionStr
-  };
-  const rounds = [];
+    return results;
+  }
 
-  (!isNil(round1)) ? rounds.push(parseInt(round1)) : null;
-  (!isNil(round2)) ? rounds.push(parseInt(round2)) : null;
-  (!isNil(round3)) ? rounds.push(parseInt(round3)) : null;
-  (!isNil(round4)) ? rounds.push(parseInt(round4)) : null;
+  parseResultRow($, row) {
+    // const name = $('.full-name', '', row).text();
+    // const positionStr = $('.position', '', row).text();
+    // const totalScore = $('.totalScore', '', row).text();
+    // let officialAmountStr = $('.officialAmount', '', row).text();
+    // const cupPoints = $('.cupPoints', '', row).text();
+    // const round1 = $('.round1', '', row).text();
+    // const round2 = $('.round2', '', row).text();
+    // const round3 = $('.round3', '', row).text();
+    // const round4 = $('.round4', '', row).text();
+    // const relativeScore = $('.relativeScore', '', row).text();
 
-  officialAmountStr = officialAmountStr.replace(/,/g, '');
-  officialAmountStr = officialAmountStr.replace(/\$/g, '');
-  const officialAmount = parseFloat(officialAmountStr);
+    const name = row('.full-name').text();
+    const positionStr = row('.position').text();
+    const totalScore = row('.totalScore').text();
+    let officialAmountStr = row('.officialAmount').text();
+    const cupPoints = row('.cupPoints').text();
+    const round1 = row('.round1').text();
+    const round2 = row('.round2').text();
+    const round3 = row('.round3').text();
+    const round4 = row('.round4').text();
+    const relativeScore = row('.relativeScore').text();
 
-  return {
-    firstName,
-    lastName,
-    totalScore: parseInt(totalScore),
-    cupPoints: parseInt(cupPoints),
-    relativeScore: parseInt(relativeScore),
-    rounds,
-    position,
-    officialAmount
-  };
-};
+
+    const nameArray = name.split(' ');
+    const lastName = nameArray.pop();
+    const firstName = nameArray.join(' ');
+    const position = {
+      tied: positionStr.startsWith('T'),
+      pos: (positionStr.startsWith('T')) ? parseInt(positionStr.substr(1)) : positionStr
+    };
+    const rounds = [];
+
+    (!isNil(round1) && round1.trim().length !== 0) ? rounds.push(parseInt(round1)) : null;
+    (!isNil(round2) && round2.trim().length !== 0) ? rounds.push(parseInt(round2)) : null;
+    (!isNil(round3) && round3.trim().length !== 0) ? rounds.push(parseInt(round3)) : null;
+    (!isNil(round4) && round4.trim().length !== 0) ? rounds.push(parseInt(round4)) : null;
+
+    officialAmountStr = officialAmountStr.replace(/,/g, '');
+    officialAmountStr = officialAmountStr.replace(/\$/g, '');
+    const officialAmount = parseFloat(officialAmountStr);
+
+    return {
+      firstName,
+      lastName,
+      totalScore: parseInt(totalScore),
+      cupPoints: parseInt(cupPoints),
+      relativeScore: parseInt(relativeScore),
+      rounds,
+      position,
+      officialAmount
+    };
+  }
+}
 
 module.exports = {
-  update,
-  scrapeScheduleResults
+  EspnUpdater
 };
