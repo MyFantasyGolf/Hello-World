@@ -3,64 +3,76 @@ const fs = require('fs');
 const path = require('path');
 const request = require('request');
 const moment = require('moment');
+const sleep = require('sleep');
 const isNil = require('lodash/isNil');
 
+const season = require('../../utils/season');
 const resultsApi = require('../../db/resultsApi');
 
 class EspnUpdater {
 
-  update(htmlFile) {
-    return new Promise( (resolve, reject) => {
-      this.updateSchedules(htmlFile).then( (schedules) => {
-        this.updateScheduleDetails(schedules);
-        resolve();
-      });
-    });
-    // for each schedule fill in the details
+  async update(htmlFile) {
+    const schedules = await this.updateSchedules(htmlFile);
   }
 
-  updateSchedules(htmlFile) {
-    const promise = new Promise( (resolve, reject) => {
-      const webSchedules = this.getSchedule(htmlFile);
+  async updateSchedules(htmlFile) {
+    const webSchedules = this.getSchedule(htmlFile);
 
-      const savedSchedules = resultsApi.getSchedules().then( (schedules) => {
-        const schedulesToFix = webSchedules.filter( (ws) => {
-          if (isNil(schedules)) {
-            return true;
-          }
+    const schedules = await resultsApi.getSchedules(webSchedules[0].year);
+    const schedulesToFix = webSchedules.filter( (ws) => {
+      if (isNil(schedules)) {
+        return true;
+      }
 
-          const found = schedules.find( (ss) => {
-            if (ss.date === ws.date && !isNil(ss.espnUrl)) {
-              return ss.complete;
-            }
+      const found = schedules.find( (ss) => {
+        if (ss.key === ws.title.toLowerCase().replace(/ /g, '')) {
+          return ss.complete;
+        }
 
-            return false;
-          });
-
-          return true;
-        });
-
-        // save these new schedules
-        schedulesToFix.forEach( (schedule) => {
-          schedule.complete = false;
-          resultsApi.saveTourSchedule(schedule)
-        });
-
-        resolve(schedulesToFix);
+        return false;
       });
+
+      return true;
     });
 
-    return promise;
+    // save these new schedules
+    schedulesToFix.forEach( (schedule) => {
+      schedule.complete = false;
+      resultsApi.saveTourSchedule(schedule)
+    });
+
+    return schedulesToFix;
   }
 
-  updateScheduleDetails(schedules) {
-    schedules.forEach( (schedule) => {
-      const results = this.getScheduleResults(schedule);
+  /**
+  Run through the schedules and try to fill in results for
+  tournaments that have them.
+  **/
+  async updateResults(file) {
+    let data;
+
+    if (!isNil(file)) {
+      data = fs.readFileSync(file).toString();
+    }
+
+    const year = season.getSeason();
+
+    const schedules = await resultsApi.getSchedules(year);
+
+    schedules.forEach( async (schedule) => {
+
+      if (!isNil(data)) {
+        const results = this.scrapeScheduleResults(data);
+        await resultsApi.saveResults(schedule, results);
+      }
+
+      const sleeper = parseInt((Math.random() * 3) + 1);
+      console.log(`Sleeping for ${sleeper} seconds.\n`);
+      sleep.sleep(sleeper);
     });
   }
 
   getSchedule(htmlFile) {
-
     let html;
 
     if (!isNil(htmlFile)) {
@@ -84,7 +96,7 @@ class EspnUpdater {
     const $ = cheerio.load(html);
     const rows = $('tr');
 
-    const season = $($('select option')[1]).text();
+    const seasonString = $($('select option')[1]).text();
 
     const entries = [];
 
@@ -132,12 +144,14 @@ class EspnUpdater {
       return true;
     }).map( (tourney) => {
 
-      const date = this.sanitizeDate(season, tourney[1]);
+      const date = this.sanitizeDate(seasonString, tourney[1]);
+      const year = season.getSeason(moment(date.start, 'MM/DD/YYYY'));
 
       if (tourney.length === 10 || tourney.length === 11) {
 
         const t = {
           date: date,
+          year,
           espnUrl: tourney[2],
           title: tourney[3],
           course: tourney[4],
@@ -157,6 +171,7 @@ class EspnUpdater {
 
       return {
         espnUrl: null,
+        year,
         date: date,
         title: tourney[4],
         course: tourney[5],
@@ -218,27 +233,27 @@ class EspnUpdater {
   }
 
   parseResultRow($, row) {
-    // const name = $('.full-name', '', row).text();
-    // const positionStr = $('.position', '', row).text();
-    // const totalScore = $('.totalScore', '', row).text();
-    // let officialAmountStr = $('.officialAmount', '', row).text();
-    // const cupPoints = $('.cupPoints', '', row).text();
-    // const round1 = $('.round1', '', row).text();
-    // const round2 = $('.round2', '', row).text();
-    // const round3 = $('.round3', '', row).text();
-    // const round4 = $('.round4', '', row).text();
-    // const relativeScore = $('.relativeScore', '', row).text();
+    const name = $('.full-name', '', row).text();
+    const positionStr = $('.position', '', row).text();
+    const totalScore = $('.totalScore', '', row).text();
+    let officialAmountStr = $('.officialAmount', '', row).text();
+    const cupPoints = $('.cupPoints', '', row).text();
+    const round1 = $('.round1', '', row).text();
+    const round2 = $('.round2', '', row).text();
+    const round3 = $('.round3', '', row).text();
+    const round4 = $('.round4', '', row).text();
+    const relativeScore = $('.relativeScore', '', row).text();
 
-    const name = row('.full-name').text();
-    const positionStr = row('.position').text();
-    const totalScore = row('.totalScore').text();
-    let officialAmountStr = row('.officialAmount').text();
-    const cupPoints = row('.cupPoints').text();
-    const round1 = row('.round1').text();
-    const round2 = row('.round2').text();
-    const round3 = row('.round3').text();
-    const round4 = row('.round4').text();
-    const relativeScore = row('.relativeScore').text();
+    // const name = row('.full-name').text();
+    // const positionStr = row('.position').text();
+    // const totalScore = row('.totalScore').text();
+    // let officialAmountStr = row('.officialAmount').text();
+    // const cupPoints = row('.cupPoints').text();
+    // const round1 = row('.round1').text();
+    // const round2 = row('.round2').text();
+    // const round3 = row('.round3').text();
+    // const round4 = row('.round4').text();
+    // const relativeScore = row('.relativeScore').text();
 
 
     const nameArray = name.split(' ');
@@ -262,6 +277,7 @@ class EspnUpdater {
     return {
       firstName,
       lastName,
+      key: `${firstName.toLowerCase().replace(/[\. ,:-]+/g, '')}+${lastName.toLowerCase().replace(/[\. ,:-]+/g, '')}`,
       totalScore: parseInt(totalScore),
       cupPoints: parseInt(cupPoints),
       relativeScore: parseInt(relativeScore),

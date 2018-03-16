@@ -2,6 +2,8 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var cheerio = require('cheerio');
@@ -9,8 +11,10 @@ var fs = require('fs');
 var path = require('path');
 var request = require('request');
 var moment = require('moment');
+var sleep = require('sleep');
 var isNil = require('lodash/isNil');
 
+var season = require('../../utils/season');
 var resultsApi = require('../../db/resultsApi');
 
 var EspnUpdater = function () {
@@ -20,62 +24,172 @@ var EspnUpdater = function () {
 
   _createClass(EspnUpdater, [{
     key: 'update',
-    value: function update(htmlFile) {
-      var _this = this;
+    value: function () {
+      var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(htmlFile) {
+        var schedules;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.updateSchedules(htmlFile);
 
-      return new Promise(function (resolve, reject) {
-        _this.updateSchedules(htmlFile).then(function (schedules) {
-          _this.updateScheduleDetails(schedules);
-          resolve();
-        });
-      });
-      // for each schedule fill in the details
-    }
+              case 2:
+                schedules = _context.sent;
+
+              case 3:
+              case 'end':
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function update(_x) {
+        return _ref.apply(this, arguments);
+      }
+
+      return update;
+    }()
   }, {
     key: 'updateSchedules',
-    value: function updateSchedules(htmlFile) {
-      var _this2 = this;
+    value: function () {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(htmlFile) {
+        var webSchedules, schedules, schedulesToFix;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                webSchedules = this.getSchedule(htmlFile);
+                _context2.next = 3;
+                return resultsApi.getSchedules(webSchedules[0].year);
 
-      var promise = new Promise(function (resolve, reject) {
-        var webSchedules = _this2.getSchedule(htmlFile);
+              case 3:
+                schedules = _context2.sent;
+                schedulesToFix = webSchedules.filter(function (ws) {
+                  if (isNil(schedules)) {
+                    return true;
+                  }
 
-        var savedSchedules = resultsApi.getSchedules().then(function (err, schedules) {
-          var schedulesToFix = webSchedules.filter(function (ws) {
-            if (isNil(schedules)) {
-              return true;
+                  var found = schedules.find(function (ss) {
+                    if (ss.key === ws.title.toLowerCase().replace(/ /g, '')) {
+                      return ss.complete;
+                    }
+
+                    return false;
+                  });
+
+                  return true;
+                });
+
+                // save these new schedules
+
+                schedulesToFix.forEach(function (schedule) {
+                  schedule.complete = false;
+                  resultsApi.saveTourSchedule(schedule);
+                });
+
+                return _context2.abrupt('return', schedulesToFix);
+
+              case 7:
+              case 'end':
+                return _context2.stop();
             }
+          }
+        }, _callee2, this);
+      }));
 
-            var found = schedules.find(function (ss) {
-              if (ss.date === ws.date && !isNil(ss.espnUrl)) {
-                return ss.complete;
-              }
+      function updateSchedules(_x2) {
+        return _ref2.apply(this, arguments);
+      }
 
-              return false;
-            });
-          });
+      return updateSchedules;
+    }()
 
-          // save these new schedules
-          resultsApi.saveTourSchedule({ year: 2018 }, schedulesToFix);
+    /**
+    Run through the schedules and try to fill in results for
+    tournaments that have them.
+    **/
 
-          resolve(schedulesToFix);
-        });
-      });
-
-      return promise;
-    }
   }, {
-    key: 'updateScheduleDetails',
-    value: function updateScheduleDetails(schedules) {
-      var _this3 = this;
+    key: 'updateResults',
+    value: function () {
+      var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(file) {
+        var _this = this;
 
-      schedules.forEach(function (schedule) {
-        var results = _this3.getScheduleResults(schedule);
-      });
-    }
+        var data, year, schedules;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                data = void 0;
+
+
+                if (!isNil(file)) {
+                  data = fs.readFileSync(file).toString();
+                }
+
+                year = season.getSeason();
+                _context4.next = 5;
+                return resultsApi.getSchedules(year);
+
+              case 5:
+                schedules = _context4.sent;
+
+
+                schedules.forEach(function () {
+                  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(schedule) {
+                    var results, sleeper;
+                    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                      while (1) {
+                        switch (_context3.prev = _context3.next) {
+                          case 0:
+                            if (isNil(data)) {
+                              _context3.next = 4;
+                              break;
+                            }
+
+                            results = _this.scrapeScheduleResults(data);
+                            _context3.next = 4;
+                            return resultsApi.saveResults(schedule, results);
+
+                          case 4:
+                            sleeper = parseInt(Math.random() * 3 + 1);
+
+                            console.log('Sleeping for ' + sleeper + ' seconds.\n');
+                            sleep.sleep(sleeper);
+
+                          case 7:
+                          case 'end':
+                            return _context3.stop();
+                        }
+                      }
+                    }, _callee3, _this);
+                  }));
+
+                  return function (_x4) {
+                    return _ref4.apply(this, arguments);
+                  };
+                }());
+
+              case 7:
+              case 'end':
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this);
+      }));
+
+      function updateResults(_x3) {
+        return _ref3.apply(this, arguments);
+      }
+
+      return updateResults;
+    }()
   }, {
     key: 'getSchedule',
     value: function getSchedule(htmlFile) {
-      var _this4 = this;
+      var _this2 = this;
 
       var html = void 0;
 
@@ -84,7 +198,7 @@ var EspnUpdater = function () {
         return this.scrapeSchdule(data);
       } else {
         request.get('http://www.espn.com/golf/schedule', function (err, response, body) {
-          return _this4.scrapeSchdule(body);
+          return _this2.scrapeSchdule(body);
         });
       }
     }
@@ -98,12 +212,12 @@ var EspnUpdater = function () {
   }, {
     key: 'scrapeSchdule',
     value: function scrapeSchdule(html) {
-      var _this5 = this;
+      var _this3 = this;
 
       var $ = cheerio.load(html);
       var rows = $('tr');
 
-      var season = $($('select option')[1]).text();
+      var seasonString = $($('select option')[1]).text();
 
       var entries = [];
 
@@ -149,11 +263,15 @@ var EspnUpdater = function () {
 
         return true;
       }).map(function (tourney) {
+
+        var date = _this3.sanitizeDate(seasonString, tourney[1]);
+        var year = season.getSeason(moment(date.start, 'MM/DD/YYYY'));
+
         if (tourney.length === 10 || tourney.length === 11) {
-          var _date = _this5.sanitizeDate(season, tourney[1]);
 
           var t = {
-            date: _date,
+            date: date,
+            year: year,
             espnUrl: tourney[2],
             title: tourney[3],
             course: tourney[4],
@@ -173,6 +291,7 @@ var EspnUpdater = function () {
 
         return {
           espnUrl: null,
+          year: year,
           date: date,
           title: tourney[4],
           course: tourney[5],
@@ -189,6 +308,10 @@ var EspnUpdater = function () {
       var years = seasonText.split('-');
       var startYear = parseInt(years[0]);
       var endYear = parseInt(years[1]);
+
+      if (endYear < 2000) {
+        endYear = endYear + 2000;
+      }
 
       var days = dateString.split('-');
 
@@ -214,17 +337,22 @@ var EspnUpdater = function () {
 
       return mDate;
     }
+
+    /**
+    This is where we look for the results of everything
+    **/
+
   }, {
     key: 'scrapeScheduleResults',
     value: function scrapeScheduleResults(resultsPage) {
-      var _this6 = this;
+      var _this4 = this;
 
       var $ = cheerio.load(resultsPage);
       var rows = $('.player-overview');
       var results = [];
 
       rows.each(function (index, row) {
-        results.push(_this6.parseResultRow($, row));
+        results.push(_this4.parseResultRow($, row));
       });
 
       return results;
@@ -232,27 +360,28 @@ var EspnUpdater = function () {
   }, {
     key: 'parseResultRow',
     value: function parseResultRow($, row) {
-      // const name = $('.full-name', '', row).text();
-      // const positionStr = $('.position', '', row).text();
-      // const totalScore = $('.totalScore', '', row).text();
-      // let officialAmountStr = $('.officialAmount', '', row).text();
-      // const cupPoints = $('.cupPoints', '', row).text();
-      // const round1 = $('.round1', '', row).text();
-      // const round2 = $('.round2', '', row).text();
-      // const round3 = $('.round3', '', row).text();
-      // const round4 = $('.round4', '', row).text();
-      // const relativeScore = $('.relativeScore', '', row).text();
+      var name = $('.full-name', '', row).text();
+      var positionStr = $('.position', '', row).text();
+      var totalScore = $('.totalScore', '', row).text();
+      var officialAmountStr = $('.officialAmount', '', row).text();
+      var cupPoints = $('.cupPoints', '', row).text();
+      var round1 = $('.round1', '', row).text();
+      var round2 = $('.round2', '', row).text();
+      var round3 = $('.round3', '', row).text();
+      var round4 = $('.round4', '', row).text();
+      var relativeScore = $('.relativeScore', '', row).text();
 
-      var name = row('.full-name').text();
-      var positionStr = row('.position').text();
-      var totalScore = row('.totalScore').text();
-      var officialAmountStr = row('.officialAmount').text();
-      var cupPoints = row('.cupPoints').text();
-      var round1 = row('.round1').text();
-      var round2 = row('.round2').text();
-      var round3 = row('.round3').text();
-      var round4 = row('.round4').text();
-      var relativeScore = row('.relativeScore').text();
+      // const name = row('.full-name').text();
+      // const positionStr = row('.position').text();
+      // const totalScore = row('.totalScore').text();
+      // let officialAmountStr = row('.officialAmount').text();
+      // const cupPoints = row('.cupPoints').text();
+      // const round1 = row('.round1').text();
+      // const round2 = row('.round2').text();
+      // const round3 = row('.round3').text();
+      // const round4 = row('.round4').text();
+      // const relativeScore = row('.relativeScore').text();
+
 
       var nameArray = name.split(' ');
       var lastName = nameArray.pop();
@@ -275,6 +404,7 @@ var EspnUpdater = function () {
       return {
         firstName: firstName,
         lastName: lastName,
+        key: firstName.toLowerCase().replace(/[\. ,:-]+/g, '') + '+' + lastName.toLowerCase().replace(/[\. ,:-]+/g, ''),
         totalScore: parseInt(totalScore),
         cupPoints: parseInt(cupPoints),
         relativeScore: parseInt(relativeScore),

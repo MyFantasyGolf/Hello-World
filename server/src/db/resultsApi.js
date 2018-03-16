@@ -5,20 +5,14 @@ const moment = require('moment');
 const saveTourSchedule = async (schedule) => {
   const startDate = moment(schedule.date.start, 'MM/DD/YYYY');
 
-  const season = (startDate.month() >= 9 && startDate.month() < 12) ?
-    startDate.year() + 1 : startDate.year();
-
   const db = await conn.db;
-
   const coll = db.collection('schedules');
 
   try {
     coll.findOneAndUpdate(
-      { year: season},
-      {$push: { schedule: schedule }},
-      {
-        upsert: true
-      }
+      { year: schedule.year, title: schedule.title },
+      { ...schedule, key: schedule.title.toLowerCase().replace(/ /g, '') },
+      { upsert: true }
     );
   }
   catch(err) {
@@ -26,25 +20,35 @@ const saveTourSchedule = async (schedule) => {
   }
 };
 
-const getSchedules = () => {
+const getSchedules = async (season) => {
+  const db = await conn.db;
+  const coll = db.collection('schedules');
+  const results = await coll.find({year: season}).toArray();
 
-  return new Promise( (resolve, reject) => {
-    conn.db.then( (db) => {
-      const coll = db.collection('schedules');
+  return results;
+};
 
-      coll.find({}).toArray((err, results) => {
+const saveResults = async (schedule, results) => {
+  const db = await conn.db;
+  const coll = db.collection('schedules');
 
-        if (!isNil(err)) {
-          reject(err);
-        }
+  try {
+    results.forEach( (result) => {
 
-        resolve(results);
-      });
+      coll.findOneAndUpdate(
+        { year: schedule.year, key: schedule.key },
+        { $set: { [`results.${result.key}`]: { ...result } }},
+        { upsert: true }
+      );
     });
-  });
+  }
+  catch(err) {
+    console.log(err.stack);
+  }
 };
 
 module.exports = {
   saveTourSchedule,
-  getSchedules
+  getSchedules,
+  saveResults
 };
