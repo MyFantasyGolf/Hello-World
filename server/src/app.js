@@ -49,6 +49,8 @@ app.get('/scoreUpdate', (request, response) => {
   response.send(playerResults);
 });
 
+app.get('/user/:userId', user_service.getUser);
+
 app.post('/register', user_service.registerUser);
 app.post('/login', user_service.login);
 

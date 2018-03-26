@@ -1,6 +1,7 @@
 const isNil = require('lodash/isNil');
 const userMgmt = require('../db/userApi');
 const bcrypt = require('bcrypt');
+const ObjectId = require('mongodb').ObjectId;
 
 const registerUser = async (request, response) => {
   const user = request.body;
@@ -37,8 +38,32 @@ const login = async (request, response) => {
     response.status(401).send('Login failed.');
   }
 
-  request.session.userId = user._id;
+  request.session.userId = user._id.toString();
   response.send();
+};
+
+const getUser = async (request, response) => {
+  let userId = request.params.userId;
+
+  if (isNil(userId)) {
+    userId = request.session.userId;
+  }
+
+  if (isNil(userId)) {
+    response.status(401).send('Unauthorized');
+    return;
+  }
+
+  const db = await conn.db;
+  const coll = db.collection('users');
+
+  try {
+    const user = coll.findOne({_id: ObjectId('userId')});
+    return user;
+  }
+  catch( err ) {
+    console.log(err.stack);
+  }
 };
 
 module.exports = {
