@@ -25,12 +25,13 @@ app.get('/update', async (request, response) => {
 
   // try espn first
   const updater = new espn.EspnUpdater();
-
-  await updater.update(path.resolve(__dirname, '..', 'test', 'files', 'espn-schedule.html'));
-
-  //now do the players
-  const file = path.resolve(__dirname, '..', 'test', 'files', 'results.html');
-  await updater.updateResults(file);
+  //
+  // await updater.update(path.resolve(__dirname, '..', 'test', 'files', 'espn-schedule.html'));
+  //
+  // //now do the players
+  // const file = path.resolve(__dirname, '..', 'test', 'files', 'results.html');
+  // await updater.updateResults(file);
+  updater.update();
 
   response.send();
 });
@@ -39,6 +40,7 @@ app.get('/updateResults', async (request, response) => {
   const updater = new espn.EspnUpdater();
 
   await updater.updateResults();
+  console.log('Done.');
   response.send();
 });
 
@@ -48,8 +50,6 @@ app.get('/scoreUpdate', (request, response) => {
   const playerResults = espn.scrapeScheduleResults(data);
   response.send(playerResults);
 });
-
-app.get('/user/:userId', user_service.getUser);
 
 app.post('/register', user_service.registerUser);
 app.post('/login', user_service.login);

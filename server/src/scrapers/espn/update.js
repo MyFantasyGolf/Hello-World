@@ -2,6 +2,7 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const path = require('path');
 const request = require('request');
+const asyncRequest = require('request-promise');
 const moment = require('moment');
 const sleep = require('sleep');
 const isNil = require('lodash/isNil');
@@ -11,12 +12,13 @@ const resultsApi = require('../../db/resultsApi');
 
 class EspnUpdater {
 
-  async update(htmlFile) {
-    const schedules = await this.updateSchedules(htmlFile);
+  async update() {
+    const html = await asyncRequest('http://www.espn.com/golf/schedule');
+    const schedulez = await this.updateSchedules(html);
   }
 
-  async updateSchedules(htmlFile) {
-    const webSchedules = this.getSchedule(htmlFile);
+  async updateSchedules(html) {
+    const webSchedules = this.scrapeSchdule(html);
 
     const schedules = await resultsApi.getSchedules(webSchedules[0].year);
     const schedulesToFix = webSchedules.filter( (ws) => {
@@ -48,12 +50,7 @@ class EspnUpdater {
   Run through the schedules and try to fill in results for
   tournaments that have them.
   **/
-  async updateResults(file) {
-    let data;
-
-    if (!isNil(file)) {
-      data = fs.readFileSync(file).toString();
-    }
+  async updateResults() {
 
     const year = season.getSeason();
 
@@ -61,9 +58,23 @@ class EspnUpdater {
 
     schedules.forEach( async (schedule) => {
 
-      if (!isNil(data)) {
-        const results = this.scrapeScheduleResults(data);
+      if (schedule.complete === true || isNil(schedule.espnUrl)) {
+        console.log(`Skipping ${schedule.title}`);
+        return;
+      }
+
+      console.log(`Retrieving results for ${schedule.title}`);
+
+      const html = await asyncRequest(`http://espn.com${schedule.espnUrl}`);
+      if (!isNil(html)) {
+        const results = this.scrapeScheduleResults(html);
         await resultsApi.saveResults(schedule, results);
+
+        if (moment(schedule.date.end, 'MM/DD/YYYY').isBefore(moment())) {
+          schedule.complete = true;
+          await resultsApi.saveTourSchedule(schedule);
+          console.log(`${schedule.title} successfully saved.`);
+        }
       }
 
       const sleeper = parseInt((Math.random() * 3) + 1);
@@ -72,19 +83,19 @@ class EspnUpdater {
     });
   }
 
-  getSchedule(htmlFile) {
-    let html;
-
-    if (!isNil(htmlFile)) {
-      const data = fs.readFileSync(htmlFile).toString();
-      return this.scrapeSchdule(data);
-    }
-    else {
-      request.get('http://www.espn.com/golf/schedule', (err, response, body) => {
-        return this.scrapeSchdule(body);
-      });
-    }
-  }
+  // getSchedule(htmlFile) {
+  //   let html;
+  //
+  //   if (!isNil(htmlFile)) {
+  //     const data = fs.readFileSync(htmlFile).toString();
+  //     return this.scrapeSchdule(data);
+  //   }
+  //   else {
+  //     request.get('http://www.espn.com/golf/schedule', (err, response, body) => {
+  //       return this.scrapeSchdule(body);
+  //     });
+  //   }
+  // }
 
   getScheduleResults(schedule) {
     // request.get(schedule.espnUrl, (err, response, body) => {
