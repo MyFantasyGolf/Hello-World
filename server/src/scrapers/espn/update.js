@@ -83,26 +83,6 @@ class EspnUpdater {
     });
   }
 
-  // getSchedule(htmlFile) {
-  //   let html;
-  //
-  //   if (!isNil(htmlFile)) {
-  //     const data = fs.readFileSync(htmlFile).toString();
-  //     return this.scrapeSchdule(data);
-  //   }
-  //   else {
-  //     request.get('http://www.espn.com/golf/schedule', (err, response, body) => {
-  //       return this.scrapeSchdule(body);
-  //     });
-  //   }
-  // }
-
-  getScheduleResults(schedule) {
-    // request.get(schedule.espnUrl, (err, response, body) => {
-    //   return this.scrapeScheduleResults(body);
-    // });
-  }
-
   scrapeSchdule(html) {
     const $ = cheerio.load(html);
     const rows = $('tr');

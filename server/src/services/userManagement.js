@@ -39,7 +39,7 @@ const login = async (request, response) => {
   }
 
   request.session.userId = user._id.toString();
-  response.send();
+  response.send(user);
 };
 
 const getUser = async (request, response) => {

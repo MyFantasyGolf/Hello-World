@@ -1,20 +1,25 @@
+//eslint-disable-next-line no-undef
 const path = require('path');
+//eslint-disable-next-line no-undef
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: './index.html',
-  filename: 'index.html',
-  inject: 'body'
-})
-
+//eslint-disable-next-line no-undef
 module.exports = {
-  entry: './index.js',
+  entry: ['./index.js'],
   output: {
     filename: 'myfantasygolf.js',
+    //eslint-disable-next-line no-undef
     path: path.resolve(__dirname, 'dist')
   },
+  devtool: 'inline-source-map',
   module: {
     rules: [
+      {
+        enforce: 'pre',
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'eslint-loader'
+      },
       {
         test: /\.scss$/,
         use: [
@@ -46,11 +51,16 @@ module.exports = {
   },
   devServer: {
     port: 3001,
+    publicPath: '/',
+    historyApiFallback: true,
     proxy: {
-      "/api": "http://localhost:3000"
+      '/api': 'http://localhost:3000/'
     }
   },
   plugins: [
-    HtmlWebpackPluginConfig
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: './index.html.template'
+    })
   ]
 };

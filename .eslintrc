@@ -1,0 +1,145 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "mocha": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended"
+    ],
+    "settings": {
+        "react": {
+            "createClass": "createReactClass", // Regex for Component Factory to use,
+                                         // default to "createReactClass"
+            "pragma": "React",  // Pragma to use, default to "React"
+            "version": "15.0", // React version, default to the latest React stable release
+            "flowVersion": "0.53" // Flow version
+        },
+        "propWrapperFunctions": [ "forbidExtraProps" ] // The names of any functions used to wrap the
+                                                   // propTypes object, e.g. `forbidExtraProps`.
+                                                   // If this isn't set, any propTypes wrapped in
+                                                   // a function will be skipped.
+    },
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true,
+            "jsx": true
+        },
+        "ecmaVersion": 8,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react",
+        "babel"
+    ],
+    "rules": {
+        "indent": [
+            "error",
+            2
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "semi-style": [
+            "error",
+            "last"
+        ],
+        "new-cap": "error",
+        "comma-style": [
+            "error",
+            "last"
+        ],
+        "curly": [
+            "error",
+            "all"
+        ],
+        "complexity": [
+            "error",
+            10
+        ],
+        "default-case": "error",
+        "eqeqeq": [
+            "error",
+            "smart"
+        ],
+        "no-alert": "warn",
+        "no-console": "warn",
+        "no-multi-spaces": "error",
+        "no-return-assign": [
+            "error",
+            "always"
+        ],
+        "no-return-await": "error",
+        "no-unused-expressions": "error",
+        "no-unused-vars": [
+            "warn",
+            {
+                "varsIgnorePattern": "React|FC$"
+            }
+        ],
+        "no-useless-call": "error",
+        "camelcase": "error",
+        "func-names": [
+            "error",
+            "as-needed"
+        ],
+        "jsx-quotes": [
+            "error",
+            "prefer-double"
+        ],
+        "max-depth": [
+            "error",
+            4
+        ],
+        "max-len": [
+            "warn",
+            { "code": 80 }
+        ],
+        "new-parens": "error",
+        "no-unneeded-ternary": "error",
+        "space-before-blocks": [
+            "error",
+            {
+                "functions": "always",
+                "keywords": "always",
+                "classes": "always"
+            }
+        ],
+        "space-infix-ops": "error",
+        "arrow-spacing": [
+            "error",
+            {
+                "before": true,
+                "after": true
+            }
+        ],
+        "arrow-body-style": [
+            "error",
+            "always"
+        ],
+        "arrow-parens": [
+            "error",
+            "always"
+        ],
+        "no-duplicate-imports": "warn",
+        "prefer-destructuring": [
+            "warn",
+            {
+                "object": true,
+                "array": false
+            }
+        ],
+        "prefer-const": "error"
+    }
+}

@@ -36,7 +36,7 @@ app.get('/update', async (request, response) => {
   response.send();
 });
 
-app.get('/updateResults', async (request, response) => {
+app.get('/api/updateResults', async (request, response) => {
   const updater = new espn.EspnUpdater();
 
   await updater.updateResults();
@@ -44,14 +44,14 @@ app.get('/updateResults', async (request, response) => {
   response.send();
 });
 
-app.get('/scoreUpdate', (request, response) => {
+app.get('/api/scoreUpdate', (request, response) => {
   const file = path.resolve(__dirname, '..', 'test', 'files', 'schedule.html');
   const data = fs.readFileSync(file).toString();
   const playerResults = espn.scrapeScheduleResults(data);
   response.send(playerResults);
 });
 
-app.post('/register', user_service.registerUser);
-app.post('/login', user_service.login);
+app.post('/api/register', user_service.registerUser);
+app.post('/api/login', user_service.login);
 
 app.listen(3000, () => console.log('MyFantasyGolf app listening on port 3000!'))
