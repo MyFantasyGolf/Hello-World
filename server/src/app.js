@@ -5,9 +5,29 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
+const isNil = require('lodash/isNil');
 const user_service = require('./services/userManagement');
+const league_service = require('./services/leagueManagement');
 
 const app = express();
+
+// auth middleware
+app.use( (req, resp, next) => {
+
+  if (!req.url.startsWith('/api') ||
+    req.url.startsWith('/api/login') ||
+    req.url.startsWith('/api/register')) {
+    next();
+    return;
+  }
+
+  if (isNil(req.session) || isNil(req.session.userId)) {
+    resp.status(401).send('Unauthorized');
+    return;
+  }
+
+  next();
+});
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -53,5 +73,12 @@ app.get('/api/scoreUpdate', (request, response) => {
 
 app.post('/api/register', user_service.registerUser);
 app.post('/api/login', user_service.login);
+app.get('/api/currentUser', user_service.getUser);
+
+// leagues
+app.get('/api/myleagues', league_service.getMyLeagues);
+
+app.get('/api/league/:leagueId', league_service.getLeague);
+app.post('/api/league', league_service.createLeague);
 
 app.listen(3000, () => console.log('MyFantasyGolf app listening on port 3000!'))

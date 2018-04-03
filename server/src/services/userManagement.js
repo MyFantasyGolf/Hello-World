@@ -42,18 +42,7 @@ const login = async (request, response) => {
   response.send(user);
 };
 
-const getUser = async (request, response) => {
-  let userId = request.params.userId;
-
-  if (isNil(userId)) {
-    userId = request.session.userId;
-  }
-
-  if (isNil(userId)) {
-    response.status(401).send('Unauthorized');
-    return;
-  }
-
+const findUser = async (userId) => {
   const db = await conn.db;
   const coll = db.collection('users');
 
@@ -66,7 +55,23 @@ const getUser = async (request, response) => {
   }
 };
 
+const getUser = async (request, response) => {
+  let userId = request.params.userId;
+
+  if (isNil(userId)) {
+    userId = request.session.userId;
+  }
+
+  if (isNil(userId)) {
+    response.status(500).send('ID does not exist');
+    return;
+  }
+
+  return findUser(userId);
+};
+
 module.exports = {
   registerUser,
-  login
+  login,
+  getUser
 };

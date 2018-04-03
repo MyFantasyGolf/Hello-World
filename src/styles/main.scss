@@ -11,11 +11,10 @@ body {
 #app {
   height: 100%;
   width: 100%;
-  background-color: green;
 }
 
 .fancy-font {
-  font-family: 'Buenard';
+  font-family: $golf_font;
 }
 
 .flex {
@@ -23,3 +22,4 @@ body {
 }
 
 @import './pages/entry_page';
+@import './pages/main_page';

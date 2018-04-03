@@ -17,7 +17,25 @@ class AuthService {
 
   @action
   async getCurrentUser() {
-    return this.me;
+    if (!isNil(this.me)) {
+      return this.me;
+    }
+
+    try {
+      const response = await fetch('/api/currentUser', {
+        method: 'GET',
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      });
+
+      const user = await response.json();
+      this.me = user;
+      return user;
+    }
+    catch( err ) {
+      return;
+    }
   }
 
   @action
