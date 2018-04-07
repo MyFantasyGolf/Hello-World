@@ -1,0 +1,46 @@
+.main-page {
+  display: flex;
+  flex-direction: column;
+
+  .banner-parent {
+    display: flex;
+    justify-content: space-between;
+    height: 36px;
+    background-color: $dark;
+    color: $light;
+    font-family: $golf_font;
+
+    .left {
+      font-size: 24px;
+      padding-top: 6px;
+    }
+
+    .title {
+      flex-grow: 1;
+      font-size: 14px;
+      padding-top: 6px;
+    }
+  }
+
+  .main-area {
+    flex-grow: 1;
+    height: 100%;
+  }
+
+  @media only screen and (min-width: $break_point) {
+    .banner-parent {
+      height: 48px;
+
+      .left {
+        font-size: 40px;
+        padding: 8px;
+      }
+
+      .title {
+        padding: 2px;
+        font-size: 28px;
+        padding-top: 0px;
+      }
+    }
+  }
+}

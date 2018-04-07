@@ -1,24 +1,12 @@
+import 'babel-polyfill';
+
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-  BrowserRouter,
-  Route
-} from 'react-router-dom';
+
+import './src/js/bootstrap';
 
 import EntryPage from './src/js/pages/EntryPage';
-import HomePage from './src/js/pages/HomePage';
 
 import './src/styles/main.scss';
 
-const App = () => {
-  return (
-    <BrowserRouter>
-      <div>
-        <Route exact path="/" component={EntryPage} />
-        <Route path="/home" component={HomePage} />
-      </div>
-    </BrowserRouter>
-  );
-};
-
-ReactDOM.render(<App />, document.getElementById('app'));
+ReactDOM.render(<EntryPage />, document.getElementById('app'));
