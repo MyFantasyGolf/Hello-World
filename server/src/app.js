@@ -11,35 +11,35 @@ const league_service = require('./services/leagueManagement');
 
 const app = express();
 
+app.use(session({
+  secret: 'UniqueFantasyGolf',
+  resave: true,
+  saveUninitialized: false
+}));
+
 // auth middleware
-app.use( (req, resp, next) => {
-
-  if (!req.url.startsWith('/api') ||
-    req.url.startsWith('/api/login') ||
-    req.url.startsWith('/api/register')) {
-    next();
-    return;
-  }
-
-  if (isNil(req.session) || isNil(req.session.userId)) {
-    resp.status(401).send('Unauthorized');
-    return;
-  }
-
-  next();
-});
+// app.use( (req, resp, next) => {
+//
+//   if (!req.url.startsWith('/api') ||
+//     req.url.startsWith('/api/login') ||
+//     req.url.startsWith('/api/register')) {
+//     next();
+//     return;
+//   }
+//
+//   if (isNil(req.session) || isNil(req.session.userId)) {
+//     resp.status(401).send('Unauthorized');
+//     return;
+//   }
+//
+//   next();
+// });
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // parse application/json
 app.use(bodyParser.json());
-
-app.use(session({
-  secret: 'UniqueFantasyGolf',
-  resave: true,
-  saveUninitialized: false
-}));
 
 app.get('/update', async (request, response) => {
 
