@@ -21,5 +21,10 @@ body {
   display: flex;
 }
 
+.error {
+  font-family: $golf_font;
+  color: red;
+}
+
 @import './pages/entry_page';
 @import './pages/main_page';

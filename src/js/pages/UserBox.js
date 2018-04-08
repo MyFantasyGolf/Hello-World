@@ -27,11 +27,20 @@ class UserBox extends React.Component {
     });
   }
 
+  closeMenu = () => {
+    this.setState({
+      ...this.state,
+      open: false
+    });
+  }
+
   logout = () => {
     this.setState({
       ...this.state,
       open: false
     });
+
+    this.props.AuthService.logout();
   }
 
   changePassword = () => {
@@ -43,7 +52,7 @@ class UserBox extends React.Component {
 
   render() {
     // eslint-disable-next-line
-    const name = this.props.AuthService.me.name;
+    const name = this.props.AuthService.me.firstName;
 
     return (
       <div className="user-box">

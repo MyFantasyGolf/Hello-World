@@ -3,7 +3,8 @@ const mfgFetch = async (url, reqBody) => {
     ...reqBody,
     headers: new Headers({
       'Content-Type': 'application/json'
-    })
+    }),
+    credentials: 'same-origin'
   });
 };
 
