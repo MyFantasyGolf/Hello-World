@@ -1,0 +1,36 @@
+.my-league-view {
+
+  .expanded {
+    display: none;
+
+    div.navItem .title {
+      display: none;
+    }
+  }
+
+  .content {
+    padding: 12px;
+  }
+
+  @media only screen and (min-width: $break_point) {
+
+    display: flex;
+    flex-direction: row;
+
+    .condensed {
+      display: none;
+    }
+
+    .expanded {
+      display: block;
+      margin-top: 8px;
+      padding: 8px;
+      border-right: 1px solid $dark;
+    }
+
+    .content {
+      flex-grow: 1;
+    }
+  }
+
+}
