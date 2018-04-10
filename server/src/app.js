@@ -73,6 +73,7 @@ app.get('/api/scoreUpdate', (request, response) => {
 
 app.post('/api/register', user_service.registerUser);
 app.post('/api/login', user_service.login);
+app.post('/api/logout', user_service.logout);
 app.get('/api/currentUser', user_service.getUser);
 
 // leagues

@@ -1,4 +1,5 @@
 const conn = require('./connection');
+const ObjectId = require('mongodb').ObjectId;
 const bcrypt = require('bcrypt');
 
 const registerUser = async (user) => {
@@ -28,7 +29,21 @@ const getUser = async (email) => {
   }
 };
 
+const getUserById = async (id) => {
+  const db = await conn.db;
+  const coll = db.collection('users');
+
+  try {
+    const user = await coll.findOne({_id: ObjectId(id)});
+    return user;
+  }
+  catch(err) {
+    console.log("No user");
+  }
+}
+
 module.exports = {
   registerUser,
-  getUser
+  getUser,
+  getUserById
 };

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 
+import isNil from 'lodash/isNil';
+
 import inject from '../services/inject';
 
 @inject('AuthService')
@@ -10,7 +12,7 @@ class LoginPage extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { email: '', password: '' };
+    this.state = { email: '', password: '', error: null };
   }
 
   emailChanged = ($event) => {
@@ -21,8 +23,23 @@ class LoginPage extends React.Component {
     this.setState({ ...this.state, password: $event.target.value });
   }
 
-  login = () => {
-    this.props.AuthService.login(this.state);
+  login = async () => {
+    const { error } = await this.props.AuthService.login(this.state);
+    return error;
+  }
+
+  loginClicked = async () => {
+    this.setState({
+      ...this.state,
+      error: null
+    });
+
+    const error = await this.login();
+
+    this.setState({
+      ...this.state,
+      error
+    });
   }
 
   render() {
@@ -55,10 +72,14 @@ class LoginPage extends React.Component {
             >
             </TextField>
           </div>
+
+          { !isNil(this.state.error) &&
+            <div className="error">{ this.state.error }</div>
+          }
           <div className="login-buttons">
             <RaisedButton
               primary={true}
-              onClick={ this.login }>
+              onClick={ this.loginClicked }>
               Login
             </RaisedButton>
           </div>

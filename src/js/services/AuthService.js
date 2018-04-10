@@ -26,15 +26,20 @@ class AuthService {
         method: 'GET',
         headers: new Headers({
           'Content-Type': 'application/json'
-        })
+        }),
+        credentials: 'same-origin'
       });
+
+      if (response.ok !== true) {
+        return { error: `${response.status} - ${response.message}` };
+      }
 
       const user = await response.json();
       this.me = user;
-      return user;
+      return { user };
     }
     catch( err ) {
-      return;
+      return { error: err };
     }
   }
 
@@ -46,16 +51,32 @@ class AuthService {
         body: JSON.stringify(creds),
         headers: new Headers({
           'Content-Type': 'application/json'
-        })
+        }),
+        credentials: 'same-origin'
       });
+
+      if (response.ok !== true) {
+        const text = await response.text();
+        return { error: `${response.status} - ${text}` };
+      }
 
       const user = await response.json();
       this.me = user;
-      return user;
+      return { user };
     }
     catch( err ) {
-      return;
+      return { error: err };
     }
+  }
+
+  @action
+  async logout() {
+    await fetch('/api/logout', {
+      method: 'POST',
+      credentials: 'same-origin'
+    });
+
+    this.me = null;
   }
 }
 
