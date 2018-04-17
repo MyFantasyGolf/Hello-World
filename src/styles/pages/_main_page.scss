@@ -25,6 +25,31 @@
   .main-area {
     flex-grow: 1;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .center-panel {
+      flex-grow: 1;
+    }
+
+    .upper-tab-bar {
+      display: none;
+    }
+
+    .bottom-nav-bar {
+
+      display: block;
+    }
+
+    @media only screen and (min-width: $break_point) {
+      .upper-tab-bar {
+        display: block;
+      }
+
+      .bottom-nav-bar {
+        display: none;
+      }
+    }
   }
 
   @media only screen and (min-width: $break_point) {

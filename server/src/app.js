@@ -17,24 +17,6 @@ app.use(session({
   saveUninitialized: false
 }));
 
-// auth middleware
-// app.use( (req, resp, next) => {
-//
-//   if (!req.url.startsWith('/api') ||
-//     req.url.startsWith('/api/login') ||
-//     req.url.startsWith('/api/register')) {
-//     next();
-//     return;
-//   }
-//
-//   if (isNil(req.session) || isNil(req.session.userId)) {
-//     resp.status(401).send('Unauthorized');
-//     return;
-//   }
-//
-//   next();
-// });
-
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 

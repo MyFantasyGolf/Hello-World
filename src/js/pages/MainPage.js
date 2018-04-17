@@ -4,8 +4,12 @@ import inject from '../services/inject';
 
 import MainNavBar from './MainNavBar';
 import HomeView from './views/HomeView';
-import MyLeagueView from './views/MyLeagueView';
+import MyLeagueView from './views/MyLeague/MyLeagueView';
 import AdminView from './views/AdminView';
+
+import FontIcon from 'material-ui/FontIcon';
+import {BottomNavigation, BottomNavigationItem}
+  from 'material-ui/BottomNavigation';
 
 import { observer } from 'mobx-react';
 
@@ -35,11 +39,24 @@ class MainPage extends React.Component {
     return (
       <div className="main-area">
         <MainNavBar navSelected={ this.navigate }/>
-        <Switch>
-          <Route path="/home" component={HomeView} />
-          <Route path="/myleagues" component={MyLeagueView} />
-          <Route path="/admin" component={AdminView} />
-        </Switch>
+        <div className="center-panel">
+          <Switch>
+            <Route path="/home" component={HomeView} />
+            <Route path="/myleagues" component={MyLeagueView} />
+            <Route path="/admin" component={AdminView} />
+          </Switch>
+        </div>
+        <div className="bottom-nav-bar">
+          <BottomNavigation>
+            <BottomNavigationItem
+              label="Home"
+              icon={<FontIcon className="golf-icons-bubbles" />}
+              onClick={ () => {
+                this.navigate('/home');
+              }}
+            />
+          </BottomNavigation>
+        </div>
       </div>
     );
   }
