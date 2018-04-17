@@ -6,7 +6,8 @@ let instance;
 
 class LeagueService {
 
-  @observable myLeagues = undefined;
+  @observable myLeagues = [];
+  @observable selectedLeague = undefined;
 
   constructor() {
     if (isNil(instance)) {
@@ -14,6 +15,11 @@ class LeagueService {
     }
 
     return instance;
+  }
+
+  @action
+  selectLeague(league) {
+    this.selectedLeague = league;
   }
 
   @action

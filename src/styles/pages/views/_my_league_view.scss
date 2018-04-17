@@ -1,21 +1,47 @@
 .my-league-view {
 
+  padding-left: 8px;
+
+  .top-bar {
+    display: flex;
+  }
+
   .expanded {
     display: none;
 
-    div.navItem .title {
-      display: none;
+    div.navItem {
+      border-radius: 30px;
+
+      .title {
+        display: none;
+      }
+
+      &.selected {
+        background-color: $dark;
+        color: white;
+      }
+
+      &:hover {
+        background-color: $light;
+      }
     }
+  }
+
+  .content-parent {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
   }
 
   .content {
     padding: 12px;
+    flex-grow: 1;
   }
 
   @media only screen and (min-width: $break_point) {
 
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
 
     .condensed {
       display: none;

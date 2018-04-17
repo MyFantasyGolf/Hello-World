@@ -36,10 +36,12 @@ class LoginPage extends React.Component {
 
     const error = await this.login();
 
-    this.setState({
-      ...this.state,
-      error
-    });
+    if (!isNil(error)) {
+      this.setState({
+        ...this.state,
+        error
+      });
+    }
   }
 
   render() {
