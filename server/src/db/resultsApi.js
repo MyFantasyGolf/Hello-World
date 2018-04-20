@@ -28,6 +28,30 @@ const getSchedules = async (season) => {
   return results;
 };
 
+const getRoster = async (season) => {
+  const db = await conn.db;
+  const coll = db.collection('players');
+  const results = await coll.find({year: season}).toArray();
+
+  return results;
+};
+
+const saveRoster = async (season, roster) => {
+  const db = await conn.db;
+  const coll = db.collection('players');
+
+  try {
+    coll.findOneAndUpdate(
+      { year: season },
+      { ...roster, year: season },
+      { upsert: true }
+    );
+  }
+  catch( err ) {
+    console.log(err.stack);
+  }
+};
+
 const saveResults = async (schedule, results) => {
   const db = await conn.db;
   const coll = db.collection('schedules');
@@ -50,5 +74,7 @@ const saveResults = async (schedule, results) => {
 module.exports = {
   saveTourSchedule,
   getSchedules,
-  saveResults
+  saveResults,
+  getRoster,
+  saveRoster
 };
