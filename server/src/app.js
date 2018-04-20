@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const espn = require('./scrapers/espn/update');
+const espnPlayers = require('./scrapers/espn/playerUpdate');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -51,6 +52,13 @@ app.get('/api/scoreUpdate', (request, response) => {
   const data = fs.readFileSync(file).toString();
   const playerResults = espn.scrapeScheduleResults(data);
   response.send(playerResults);
+});
+
+app.get('/api/updateRoster', async (request, response) => {
+  const file = path.resolve(__dirname, '..', 'test', 'files', 'players.html');
+  const pup = new espnPlayers.EspnPlayerUpdater();
+  const players = await pup.updatePlayers(file);
+  response.send(players);
 });
 
 app.post('/api/register', user_service.registerUser);
