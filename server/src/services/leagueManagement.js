@@ -1,7 +1,13 @@
 const isNil = require('lodash/isNil');
 const leagueApi = require('../db/leagueApi');
 
-const getMyLeagues = (request, response) => {
+const getMyLeagues = async (request, response) => {
+
+  const userId = request.session.userId;
+
+  const leagues = await leagueApi.getLeaguesForUser(userId);
+
+  response.send({leagues: leagues});
 };
 
 const getLeague = (request, response) => {
@@ -26,8 +32,21 @@ const createLeague = async (request, response) => {
   response.send();
 };
 
+const getAvailablePlayers = async (request, response) => {
+  const leagueId = request.params.leagueId;
+
+  if (isNil(leagueId)) {
+    response.status(500).send('Invalid league ID.');
+    return;
+  }
+
+  const players = await leagueApi.getAvailablePlayers(leagueId);
+  response.send({players: players});
+};
+
 module.exports = {
   getMyLeagues,
+  getAvailablePlayers,
   getLeague,
   createLeague
 };

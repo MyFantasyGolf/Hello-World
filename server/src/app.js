@@ -9,6 +9,7 @@ const session = require('express-session');
 const isNil = require('lodash/isNil');
 const user_service = require('./services/userManagement');
 const league_service = require('./services/leagueManagement');
+const pga_service = require('./services/pgaService');
 
 const app = express();
 
@@ -66,10 +67,15 @@ app.post('/api/login', user_service.login);
 app.post('/api/logout', user_service.logout);
 app.get('/api/currentUser', user_service.getUser);
 
+// players
+app.get('/api/golfers/:season', pga_service.getGolfers);
+
 // leagues
 app.get('/api/myleagues', league_service.getMyLeagues);
 
 app.get('/api/league/:leagueId', league_service.getLeague);
 app.post('/api/league', league_service.createLeague);
+
+app.get('/api/league/:leagueId/availablePlayers', league_service.getAvailablePlayers);
 
 app.listen(3000, () => console.log('MyFantasyGolf app listening on port 3000!'))

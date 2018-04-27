@@ -30,6 +30,8 @@
 
     .center-panel {
       flex-grow: 1;
+      height: 100%;
+      overflow: auto;
     }
 
     .upper-tab-bar {
