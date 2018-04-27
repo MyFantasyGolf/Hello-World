@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import LeagueStandings from '../LeagueStandings';
-import LeagueRosters from '../LeagueRosters';
+import LeagueRosters from '../Roster/LeagueRosters';
 import LeagueTransactions from '../LeagueTransactions';
 import LeagueNotes from '../LeagueNotes';
 import LeagueAdmin from '../LeagueAdmin';

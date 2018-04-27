@@ -8,6 +8,31 @@ const updateLeague = async (league) => {
 
 };
 
+const getLeaguesForUser = async (userId) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  try {
+    const leagues = await coll.find({ teams:
+      {
+        $elemMatch: {
+          user: userId
+        }
+      }
+    }).toArray();
+
+    return leagues;
+  }
+  catch(err) {
+    console.log(`Error saving league: ${err}`);
+  }
+};
+
+const getLeague = async( leagueId ) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+};
+
 const createLeague = async (league) => {
   const db = await conn.db;
   const coll = db.collection('leagues');
@@ -29,6 +54,34 @@ const saveLeague = async(league) => {
   return createLeague(league);
 }
 
+const getAvailablePlayers = async (leagueId) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  try {
+    const megaMatch = await coll.aggregate([
+      { "$match": {"_id": ObjectId(leagueId)}},
+      { "$lookup":
+        {
+          "from": "players",
+          "localField":
+          "season",
+          "foreignField": "year",
+          "as": "players"
+        }
+      }]).toArray();
+
+    return megaMatch[0].players[0].players;
+  }
+  catch(err) {
+    console.log(`Error getting player list ${err}`);
+  }
+
+  return [];
+};
+
 module.exports = {
-  saveLeague
+  saveLeague,
+  getLeaguesForUser,
+  getAvailablePlayers
 };

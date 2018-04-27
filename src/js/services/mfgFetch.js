@@ -1,19 +1,35 @@
-const mfgFetch = async (url, reqBody) => {
-  const response = await fetch(url, {
-    ...reqBody,
-    headers: new Headers({
-      'Content-Type': 'application/json'
-    }),
-    credentials: 'same-origin'
-  });
+import ServiceRegistry from './ServiceRegistry';
 
-  if (response.ok !== 200) {
-    throw response.status;
+const handleError = (badResponse) => {
+  if (badResponse === 401) {
+    const authService = ServiceRegistry.getService('authService');
+    authService.destroySession();
   }
+};
 
-  const body = await response.json();
+const mfgFetch = async (url, reqBody) => {
+  
+  try {
+    const response = await fetch(url, {
+      ...reqBody,
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      }),
+      credentials: 'same-origin'
+    });
 
-  return body;
+    if (response.ok !== true) {
+      handleError(response);
+      return;
+    }
+
+    const body = await response.json();
+
+    return body;
+  }
+  catch(err) {
+    throw err;
+  }
 };
 
 export default mfgFetch;

@@ -31,9 +31,9 @@ const getSchedules = async (season) => {
 const getRoster = async (season) => {
   const db = await conn.db;
   const coll = db.collection('players');
-  const results = await coll.find({year: season}).toArray();
+  const results = await coll.find({year: parseInt(season)}).toArray();
 
-  return results;
+  return results[0].players;
 };
 
 const saveRoster = async (season, roster) => {
