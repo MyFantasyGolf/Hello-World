@@ -8,33 +8,37 @@ import isNil from 'lodash/isNil';
 import inject from '../services/inject';
 
 @inject('AuthService')
-class LoginPage extends React.Component {
+class RegistrationPage extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { email: '', password: '', error: null };
+    this.state = { firstName: '', email: '', password: '', error: null };
   }
 
-  emailChanged = ($event) => {
+  firstNameProvided = ($event) => {
+    this.setState({ ...this.state, firstName: $event.target.value });
+  }
+
+  emailProvided = ($event) => {
     this.setState({ ...this.state, email: $event.target.value });
   }
 
-  passwordChanged = ($event) => {
+  passwordProvided = ($event) => {
     this.setState({ ...this.state, password: $event.target.value });
   }
 
-  login = async () => {
-    const { error } = await this.props.AuthService.login(this.state);
+  registerUser = async () => {
+    const { error } = await this.props.AuthService.registerUser(this.state);
     return error;
   }
 
-  loginClicked = async () => {
+  registerClicked = async () => {
     this.setState({
       ...this.state,
       error: null
     });
 
-    const error = await this.login();
+    const error = await this.registerUser();
 
     this.setState({
       ...this.state,
@@ -47,17 +51,27 @@ class LoginPage extends React.Component {
       <div className="golf-background">
         <div className="flex golf-banner">
           <div className="golf-icons-golf-tee big-icon"></div>
-          <div className="fancy-font">MyFantasyGolf</div>
+          <div className="fancy-font">MyFantasyGolf- Register</div>
         </div>
 
         <div className="login">
+          <div>
+            <TextField 
+              id="firstName"
+              placeholder="First Name"
+              required={true}
+              value= { this.state.firstName }
+              onChange={ this.firstNameProvided }
+            >
+            </TextField>
+          </div>
           <div>
             <TextField
               id="email"
               placeholder="Email Address"
               required={true}
               value={ this.state.email }
-              onChange={ this.emailChanged }
+              onChange={ this.emailProvided }
             >
             </TextField>
           </div>
@@ -68,7 +82,7 @@ class LoginPage extends React.Component {
               require="true"
               type="password"
               value={ this.state.password }
-              onChange={ this.passwordChanged }
+              onChange={ this.passwordProvided }
             >
             </TextField>
           </div>
@@ -76,15 +90,15 @@ class LoginPage extends React.Component {
           { !isNil(this.state.error) &&
             <div className="error">{ this.state.error }</div>
           }
-          <div className="login-buttons">
+          <div className="register-buttons">
             <RaisedButton
               primary={true}
-              onClick={ this.loginClicked }>
-              Login
+              onClick={ this.registerClicked }>
+              Register
             </RaisedButton>
           </div>
-          <div className="register-link">
-            <a href="/register">Not registered yet? Register now.</a>
+          <div className="login-link">
+            <a href="/login">Already have an account? Login.</a>
           </div>
         </div>
       </div>
@@ -92,8 +106,8 @@ class LoginPage extends React.Component {
   }
 }
 
-LoginPage.propTypes = {
+RegistrationPage.propTypes = {
   AuthService: PropTypes.object
 };
 
-export default LoginPage;
+export default RegistrationPage;

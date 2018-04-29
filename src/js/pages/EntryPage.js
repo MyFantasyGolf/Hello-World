@@ -29,6 +29,7 @@ const muiTheme = getMuiTheme({
 });
 
 import LoginPage from './LoginPage';
+import RegistrationPage from './RegistrationPage';
 import HomePage from './HomePage';
 
 @inject('AuthService')
@@ -57,12 +58,21 @@ class EntryPage extends React.Component {
     return <Redirect from="/login" to="/" />;
   }
 
+  buildRegisterRoute() {
+    if (isNil(this.props.AuthService.me)) {
+      return <Route exact path="/register" component={RegistrationPage} />;
+    }
+
+    return <Redirect from="/register" to="/" />;
+  }
+
   buildLoadedScreen() {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <BrowserRouter>
           <Switch>
             { this.buildLoginRoute() }
+            { this.buildRegisterRoute() }
             { isNil(this.props.AuthService.me) &&
               <Redirect to="/login" />
             }
