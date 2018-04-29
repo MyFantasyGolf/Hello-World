@@ -12,6 +12,22 @@ import inject from '../services/inject';
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import baseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
+import * as Colors from 'material-ui/styles/colors';
+import { fade } from 'material-ui/utils/colorManipulator';
+import {
+  green500, green700, amber500, 
+} from 'material-ui/styles/colors';
+
+const muiTheme = getMuiTheme({
+  'palette': {
+    'primary1Color': green500,
+    'primary2Color': green700,
+    'accent1Color': amber500,       
+  },
+});
+
 import LoginPage from './LoginPage';
 import HomePage from './HomePage';
 
@@ -43,7 +59,7 @@ class EntryPage extends React.Component {
 
   buildLoadedScreen() {
     return (
-      <MuiThemeProvider>
+      <MuiThemeProvider muiTheme={muiTheme}>
         <BrowserRouter>
           <Switch>
             { this.buildLoginRoute() }

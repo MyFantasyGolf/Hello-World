@@ -83,6 +83,9 @@ class LoginPage extends React.Component {
               Login
             </RaisedButton>
           </div>
+          <div className="register-link">
+            <a href="#">Not registered yet? Register now.</a>
+          </div>
         </div>
       </div>
     );
