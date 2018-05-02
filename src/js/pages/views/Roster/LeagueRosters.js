@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import isNil from 'lodash/isNil';
 import inject from '../../../services/inject';
 import { observer } from 'mobx-react';
 
@@ -10,55 +11,38 @@ import PreDraft from './PreDraft';
 @observer
 class LeagueRosters extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      availablePlayers: [],
-      loading: true
-    };
-  }
+  getContent(availablePlayers = []) {
 
-  getContent() {
+    const { selectedLeague } = this.props.LeagueService;
 
-    if (this.state.loading === true) {
+    if (isNil(selectedLeague)) {
       return;
     }
 
-    if (this.props.LeagueService.selectedLeague.draft.complete === false) {
+    if (selectedLeague.draft.complete === false) {
       return <PreDraft
-        availablePlayers={ this.state.availablePlayers }
+        availablePlayers={ availablePlayers }
       />;
     }
 
     return <div>Not Implemented</div>;
   }
 
-  async componentWillMount() {
-    this.setState({
-      ...this.state,
-      loading: true
-    });
+  componentWillReact() {
+    const ls = this.props.LeagueService;
 
-    if (this.props.LeagueService.selectedLeague.draft.complete === false) {
-      const availablePlayers =
-        await this.props.LeagueService.getAvailablePlayers();
-      this.setState({
-        ...this.state,
-        availablePlayers
-      });
+    if (!isNil(ls.selectedLeague)) {
+      ls.getAvailablePlayers();
     }
-
-    this.setState({
-      ...this.state,
-      loading: false
-    });
   }
 
   render() {
+    const {selectedLeague} = this.props.LeagueService;
+    const ap = this.props.LeagueService.availablePlayers;
+
     return (
-      <div>
-        <div>League Rosters</div>
-        { this.getContent() }
+      <div className="rosters">
+        { this.getContent(ap) }
       </div>
     );
   }

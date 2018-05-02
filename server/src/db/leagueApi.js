@@ -39,6 +39,13 @@ const createLeague = async (league) => {
 
   try {
     league.season = season.getSeason(moment());
+    league.draft = {
+      complete: false,
+      settings: {},
+      picks: []
+    };
+
+    league.teams = [];
     await coll.insertOne({ ...league });
   }
   catch(err) {

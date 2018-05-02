@@ -44,6 +44,14 @@ class LoginPage extends React.Component {
     }
   }
 
+  passwordKey = ($event) => {
+    if ($event.keyCode === 13) {
+      this.loginClicked();
+    }
+
+    return;
+  }
+
   render() {
     return (
       <div className="golf-background">
@@ -71,6 +79,7 @@ class LoginPage extends React.Component {
               type="password"
               value={ this.state.password }
               onChange={ this.passwordChanged }
+              onKeyUp={ this.passwordKey }
             >
             </TextField>
           </div>

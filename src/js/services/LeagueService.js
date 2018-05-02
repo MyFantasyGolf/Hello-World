@@ -39,12 +39,17 @@ class LeagueService {
   }
 
   async getAvailablePlayers() {
+
+    if (isNil(this.selectedLeague)) {
+      return this.availablePlayers;
+    }
+
     if (isNil(this.availablePlayers) || this.availablePlayers.length === 0 ) {
       const response =
         //eslint-disable-next-line
         await mfgFetch(`/api/league/${this.selectedLeague._id}/availablePlayers`,
           {method: 'GET'});
-          
+
       this.availablePlayers = response.players;
     }
 

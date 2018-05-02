@@ -27,8 +27,10 @@ class MainPage extends React.Component {
     super(props);
   }
 
-  componentDidMount() {
-    this.props.LeagueService.loadMyLeagues();
+  async componentDidMount() {
+    const leagueService = this.props.LeagueService;
+    await leagueService.loadMyLeagues();
+    leagueService.selectLeague( leagueService.myLeagues[0] );
   }
 
   navigate = (path) => {

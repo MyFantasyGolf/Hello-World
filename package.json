@@ -6,7 +6,8 @@
   "scripts": {
     "build:parcel": "parcel index.html --out-dir dist",
     "watch:parcel": "parcel index.html --out-dir dist",
-    "serve": "webpack-dev-server --config webpack.config.js --mode development"
+    "serve": "webpack-dev-server --config webpack.config.js --mode development",
+    "build:prod": "webpack --config webpack.config.js --mode production"
   },
   "repository": {
     "type": "git",
