@@ -44,9 +44,38 @@ const getAvailablePlayers = async (request, response) => {
   response.send({players: players});
 };
 
+const getDraftList = async (request, response) => {
+  const leagueId = request.params.leagueId;
+  const teamId = request.session.userId;
+
+  if (isNil(leagueId) || isNil(teamId)) {
+    response.status(500).send('Insufficient information provided.');
+    return;
+  }
+
+  const players = await leagueApi.getDraftList(leagueId, teamId);
+  response.send({players: players});
+};
+
+const updateDraftList = async (request, response) => {
+  const newList = request.body.draftList;
+  const leagueId = request.params.leagueId;
+  const userId = request.session.userId;
+
+  if (isNil(userId) || isNil(leagueId)) {
+    response.send(500).send('Insufficient information provided.');
+    return;
+  }
+
+  await leagueApi.updateDraftList(leagueId, userId, newList);
+  response.send({'status': 'Success'});
+};
+
 module.exports = {
   getMyLeagues,
   getAvailablePlayers,
   getLeague,
-  createLeague
+  createLeague,
+  getDraftList,
+  updateDraftList
 };

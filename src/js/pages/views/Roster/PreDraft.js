@@ -2,6 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+
+import PlayerRow from './PlayerRow';
+
 class PreDraft extends React.Component {
 
   constructor(props) {
@@ -17,11 +21,56 @@ class PreDraft extends React.Component {
       return;
     }
 
-    return this.props.availablePlayers.map( (player, index) => {
+    return this.props.availablePlayers
+      .filter( (player) => {
+        const match = isNil(this.props.myDraftList) ?
+          false :
+          this.props.myDraftList.find( (wPlayer) => {
+            return wPlayer.key === player.key;
+          });
+
+        return isNil(match);
+      })
+      .map( (player, index) => {
+        return (
+          <PlayerRow
+            key={index}
+            drag={true}
+            player={player}
+            add={true}
+            remove={false}
+            move={false}
+            addClicked={this.props.addPlayerToMyList}
+          />
+        );
+      });
+  }
+
+  getMyDraftList() {
+    if (this.state.loading === true) {
+      return;
+    }
+
+    if (isNil(this.props.myDraftList) || this.props.myDraftList.length === 0) {
       return (
-        <div draggable="true" key={`${player.key}-${index}`} className="player">
-          <div>{`${player.lastName}, ${player.firstName}`}</div>
-        </div>
+        <p>
+          Add a player from the available list to begin
+          creating your draft list.
+        </p>
+      );
+    }
+
+    return this.props.myDraftList.map( (player, index) => {
+      return (
+        <PlayerRow
+          key={index}
+          drag={true}
+          player={player}
+          add={false}
+          remove={true}
+          move={true}
+          removeClicked={this.props.removePlayerFromMyList}
+        />
       );
     });
   }
@@ -45,13 +94,19 @@ class PreDraft extends React.Component {
   render() {
     return (
       <div>
-        <div className="page-title">Pre-Draft</div>
-
+        <div>
+          <div className="page-title">Pre-Draft</div>
+          <p>
+            Before the draft officially begins, use this list
+            to create your own rankings to help on draft night.
+          </p>
+        </div>
         <div className="roster-lists">
 
           <div className="roster-list">
-            <div className="title">My Wish List</div>
+            <div className="title">My Draft Sheet</div>
             <div className="body">
+              { this.getMyDraftList() }
             </div>
           </div>
 
@@ -69,7 +124,23 @@ class PreDraft extends React.Component {
 }
 
 PreDraft.propTypes = {
-  availablePlayers: PropTypes.object
+  availablePlayers: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.object
+  ]),
+  myDraftList: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.object
+  ]),
+  addPlayerToMyList: PropTypes.func,
+  removePlayerFromMyList: PropTypes.func
+};
+
+PreDraft.defaultProps = {
+  availablePlayers: [],
+  myDraftList: [],
+  addPlayerToMyList: () => {},
+  removePlayerFromMyList: () => {}
 };
 
 export default PreDraft;

@@ -87,8 +87,47 @@ const getAvailablePlayers = async (leagueId) => {
   return [];
 };
 
+const getDraftList = async (leagueId, userId) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  try {
+    const list = await coll.find({
+      '_id': ObjectId(leagueId),
+      'season': season.getSeason(moment())
+    })
+    .project({
+      teams: { $elemMatch: {"user": userId}}
+    }).toArray();
+
+    return list[0].teams[0].draftList;
+  }
+  catch(err) {
+    console.log(`Error getting draft list for ${userId}: ${err}`);
+  }
+
+  return [];
+};
+
+const updateDraftList = async (leagueId, userId, draftList) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  await coll.update({
+    '_id': ObjectId(leagueId),
+    'season': season.getSeason(moment()),
+    'teams.user': userId
+  }, {
+    '$set': {
+      'teams.$.draftList': draftList
+    }
+  });
+};
+
 module.exports = {
   saveLeague,
   getLeaguesForUser,
-  getAvailablePlayers
+  getAvailablePlayers,
+  getDraftList,
+  updateDraftList
 };

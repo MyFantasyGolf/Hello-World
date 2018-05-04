@@ -32,6 +32,11 @@ body {
   font-family: $golf_font;
 }
 
+p {
+  font-family: $golf_font;
+  color: darkgray;
+}
+
 @import './pages/entry_page';
 @import './pages/main_page';
 @import './pages/views/my_league_view';

@@ -29,6 +29,23 @@
           border-bottom: 1px solid $light;
           padding: 4px;
           cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+
+          span {
+            border-radius: 8px;
+            background-color: transparent;
+            transition: 200ms;
+
+            &:hover {
+              background-color: $light;
+              color: white;
+            }
+
+            &:active {
+              background-color: $dark
+            }
+          }
 
           &:hover {
             background-color: $alt;

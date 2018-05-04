@@ -11,7 +11,9 @@ import PreDraft from './PreDraft';
 @observer
 class LeagueRosters extends React.Component {
 
-  getContent(availablePlayers = []) {
+  getContent(
+    availablePlayers = [],
+    myDraftList = []) {
 
     const { selectedLeague } = this.props.LeagueService;
 
@@ -19,13 +21,24 @@ class LeagueRosters extends React.Component {
       return;
     }
 
-    if (selectedLeague.draft.complete === false) {
+    if (selectedLeague.draft.state === 'PREDRAFT') {
       return <PreDraft
         availablePlayers={ availablePlayers }
+        myDraftList={ myDraftList }
+        addPlayerToMyList={this.addPlayerToMyList}
+        removePlayerFromMyList={this.removePlayerFromMyList}
       />;
     }
 
     return <div>Not Implemented</div>;
+  }
+
+  addPlayerToMyList = (player) => {
+    this.props.LeagueService.addPlayerToMyList(player);
+  }
+
+  removePlayerFromMyList = (player) => {
+    this.props.LeagueService.removePlayerFromMyList(player);
   }
 
   componentWillReact() {
@@ -33,16 +46,23 @@ class LeagueRosters extends React.Component {
 
     if (!isNil(ls.selectedLeague)) {
       ls.getAvailablePlayers();
+
+      if (ls.selectedLeague.draft.state === 'PREDRAFT' ||
+        ls.selectedLeague.draft.state === 'INPROGRESS') {
+        ls.getMyDraftList();
+      }
     }
   }
 
   render() {
+    //eslint-disable-next-line
     const {selectedLeague} = this.props.LeagueService;
     const ap = this.props.LeagueService.availablePlayers;
+    const draftList = this.props.LeagueService.myDraftList;
 
     return (
       <div className="rosters">
-        { this.getContent(ap) }
+        { this.getContent(ap, draftList) }
       </div>
     );
   }
