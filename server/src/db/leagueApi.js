@@ -124,10 +124,18 @@ const updateDraftList = async (leagueId, userId, draftList) => {
   });
 };
 
+const startDraft = async (leagueId, draftOptions) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  
+};
+
 module.exports = {
   saveLeague,
   getLeaguesForUser,
   getAvailablePlayers,
   getDraftList,
-  updateDraftList
+  updateDraftList,
+  startDraft
 };

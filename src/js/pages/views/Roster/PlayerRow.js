@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import isNil from 'lodash/isNil';
+
 const PlayerRow = ({
   player,
   add,
@@ -48,9 +50,13 @@ const PlayerRow = ({
     );
   }
 
+  const playerString = isNil(player.lastName) ?
+    player.firstName :
+    `${player.lastName}, ${player.firstName}`;
+
   return (
     <div className="player" draggable={drag}>
-      <div>{`${player.lastName}, ${player.firstName}`}</div>
+      <div>{playerString}</div>
       <div className="buttons">
         { buttons }
       </div>

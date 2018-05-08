@@ -71,11 +71,25 @@ const updateDraftList = async (request, response) => {
   response.send({'status': 'Success'});
 };
 
+const startDraft = async (request, response) => {
+  const leagueId = request.params.leagueId;
+  const draftOptions = request.body.draftOptions;
+
+  if (isNil(draftOptions) || isNil(leagueId)) {
+    response.status(500).send('Not enough information to start draft');
+    return;
+  }
+
+  await leagueApi.startDraft(leagueId, draftOptions);
+  response.send();
+};
+
 module.exports = {
   getMyLeagues,
   getAvailablePlayers,
   getLeague,
   createLeague,
   getDraftList,
-  updateDraftList
+  updateDraftList,
+  startDraft
 };
