@@ -9,7 +9,6 @@ class LeagueService {
 
   @observable myLeagues = [];
   @observable selectedLeague = undefined;
-  @observable availablePlayers = [];
 
   constructor() {
     if (isNil(instance)) {
@@ -17,6 +16,14 @@ class LeagueService {
     }
 
     return instance;
+  }
+
+  isCommisioner(userId) {
+    const user = this.selectedLeague.manager.find( (manager) => {
+      return manager === userId;
+    });
+
+    return !isNil(user);
   }
 
   @action
@@ -36,19 +43,6 @@ class LeagueService {
   async loadMyLeagues() {
     const leagues = await mfgFetch('/api/myleagues', { method: 'GET' });
     this.myLeagues = leagues.leagues;
-  }
-
-  async getAvailablePlayers() {
-    if (isNil(this.availablePlayers) || this.availablePlayers.length === 0 ) {
-      const response =
-        //eslint-disable-next-line
-        await mfgFetch(`/api/league/${this.selectedLeague._id}/availablePlayers`,
-          {method: 'GET'});
-          
-      this.availablePlayers = response.players;
-    }
-
-    return this.availablePlayers;
   }
 }
 

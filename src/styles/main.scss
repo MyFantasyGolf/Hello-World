@@ -26,6 +26,19 @@ body {
   color: red;
 }
 
+.page-title {
+  color: $dark;
+  font-size: 26px;
+  font-family: $golf_font;
+}
+
+p {
+  font-family: $golf_font;
+  color: darkgray;
+}
+
 @import './pages/entry_page';
 @import './pages/main_page';
 @import './pages/views/my_league_view';
+@import './pages/views/rosters';
+@import './pages/views/draft_setup';

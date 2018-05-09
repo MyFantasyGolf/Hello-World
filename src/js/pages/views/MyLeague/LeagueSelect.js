@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
+import isNil from 'lodash/isNil';
 import inject from '../../../services/inject';
 
 import SelectField from 'material-ui/SelectField';
@@ -11,14 +11,6 @@ import { observer } from 'mobx-react';
 @inject('LeagueService')
 @observer
 class LeagueSelect extends React.Component {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      selectedLeague: null
-    };
-  }
 
   buildMenuItems() {
     return this.props.LeagueService.myLeagues.map( (league) => {
@@ -31,16 +23,15 @@ class LeagueSelect extends React.Component {
 
   leagueSelected = ($event, index, value) => {
     this.props.LeagueService.selectLeague(value);
-    this.setState({
-      ...this.state,
-      selectedLeague: value
-    });
   }
 
   render() {
+    const { selectedLeague } = this.props.LeagueService;
+    const leagueId = isNil(selectedLeague) ? null : selectedLeague._id;
+
     return (
       <SelectField
-        value={ this.state.selectedLeague }
+        value={ leagueId }
         floatingLabelText="Select a League"
         onChange={ this.leagueSelected }
       >

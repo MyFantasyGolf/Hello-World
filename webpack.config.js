@@ -8,6 +8,7 @@ module.exports = {
   entry: ['./index.js'],
   output: {
     filename: 'myfantasygolf.js',
+    publicPath: '/',
     //eslint-disable-next-line no-undef
     path: path.resolve(__dirname, 'dist')
   },

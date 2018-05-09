@@ -19,10 +19,6 @@ import {
 
 class MyLeagueView extends React.Component {
 
-  componentWillMount() {
-    this.navigate(null, '/standings');
-  }
-
   navigate = ($event, value) => {
     this.props.history.push(`/myleagues${value}`);
   }
@@ -34,7 +30,7 @@ class MyLeagueView extends React.Component {
           <PhoneNav navigate={ this.navigate } />
           <LeagueSelect />
         </div>
-
+        
         <div className="content-parent">
           <div className="expanded">
             <RouteButton

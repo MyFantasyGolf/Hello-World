@@ -1,0 +1,63 @@
+.rosters {
+
+  .start-draft {
+    margin: 8px;
+    text-align: center;
+  }
+
+  .roster-lists {
+
+    @media only screen and (min-width: $break_point) {
+      display: flex;
+
+      .roster-list {
+        margin-left: 8px;
+      }
+    }
+
+    .roster-list {
+      box-shadow: 1px 2px 6px 0px rgba(0,0,0,0.2);
+      margin-bottom: 8px;
+      width: 100%;
+
+      .title {
+        font-family: $golf_font;
+        color: $light;
+        background-color: $dark;
+        font-size: 24px;
+        padding: 8px;
+      }
+
+      .body {
+
+        .player {
+          border-bottom: 1px solid $light;
+          padding: 4px;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+
+          span {
+            border-radius: 8px;
+            background-color: transparent;
+            transition: 200ms;
+
+            &:hover {
+              background-color: $light;
+              color: white;
+            }
+
+            &:active {
+              background-color: $dark
+            }
+          }
+
+          &:hover {
+            background-color: $alt;
+            color: white;
+          }
+        }
+      }
+    }
+  }
+}

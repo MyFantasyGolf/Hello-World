@@ -1,0 +1,45 @@
+.draft-setup {
+  .option-block {
+    margin-bottom: 16px;
+    margin-top: 16px;
+  }
+
+  .middle {
+    text-align: center;
+  }
+
+  .team-list {
+    // box-shadow: 1px 2px 6px 0px rgba(0,0,0,0.2);
+    margin-bottom: 8px;
+    width: 100%;
+
+    .player {
+      border-bottom: 1px solid $light;
+      padding: 4px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+
+      span {
+        border-radius: 8px;
+        background-color: transparent;
+        transition: 200ms;
+
+        &:hover {
+          background-color: $light;
+          color: white;
+        }
+
+        &:active {
+          background-color: $dark
+        }
+      }
+
+      &:hover {
+        background-color: $alt;
+        color: white;
+      }
+    }
+
+  }
+}
