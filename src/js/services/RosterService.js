@@ -152,16 +152,11 @@ class RosterService {
 
     const body = JSON.stringify({draftOptions});
 
-    try {
-      await mfgFetch(`/api/league/${league._id}/draft`,
-        {
-          method: 'POST',
-          body: body
-        });
-    }
-    catch(err) {
-      console.log(err);
-    }
+    await mfgFetch(`/api/league/${league._id}/draft`,
+      {
+        method: 'POST',
+        body: body
+      });
   }
 }
 

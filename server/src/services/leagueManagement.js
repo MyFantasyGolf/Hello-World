@@ -94,7 +94,7 @@ const startDraft = async (request, response) => {
   }
 
   await draftApi.startDraft(leagueId, draftOptions);
-  response.send();
+  response.send({'status': 'Success'});
 };
 
 module.exports = {

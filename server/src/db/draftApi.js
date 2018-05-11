@@ -84,7 +84,7 @@ const buildRounds = (draftOptions) => {
 
     const picks = order.map( (team) => {
       return {
-        team: team._id,
+        team: team.user,
         pick: null
       };
     });

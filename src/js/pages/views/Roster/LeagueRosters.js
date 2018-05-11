@@ -6,6 +6,7 @@ import inject from '../../../services/inject';
 import { observer } from 'mobx-react';
 
 import PreDraft from './PreDraft';
+import Draft from './Draft';
 
 @inject('LeagueService', 'RosterService', 'AuthService')
 @observer
@@ -40,7 +41,11 @@ class LeagueRosters extends React.Component {
       return this.getPredraft(availablePlayers, myDraftList);
     }
     else if (draft.state === 'INPROGRESS') {
-      return <div>In Progress</div>;
+      return <Draft
+        draft={draft}
+        availablePlayers={availablePlayers}
+        myDraftList={myDraftList}
+      />;
     }
 
     return <div>Not Implemented</div>;
