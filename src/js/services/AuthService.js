@@ -44,6 +44,32 @@ class AuthService {
   }
 
   @action
+  async registerUser(creds) {
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        body: JSON.stringify(creds),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        }),
+        credentials: 'same-origin'
+      });
+
+      if (response.ok !== true) {
+        const text = await response.text();
+        return { error: `${response.status} - ${text}` };
+      }
+
+      const user = await response.json();
+      this.me = user;
+      return { user };
+    }
+    catch( err ) {
+      return { error: err };
+    }
+  }
+
+  @action
   async login(creds) {
     try {
       const response = await fetch('/api/login', {
@@ -79,5 +105,6 @@ class AuthService {
     this.me = null;
   }
 }
+
 
 export default AuthService;
