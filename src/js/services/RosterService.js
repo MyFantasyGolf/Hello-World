@@ -8,6 +8,7 @@ class RosterService {
 
   @observable availablePlayers = undefined;
   @observable myDraftList = undefined;
+  @observable draft = undefined;
 
   constructor() {
     if (isNil(instance)) {
@@ -34,6 +35,25 @@ class RosterService {
     }
 
     return this.availablePlayers;
+  }
+
+  @action
+  async getDraft(league, force = false) {
+    if (isNil(league)) {
+      return this.draft;
+    }
+
+    if (!isNil(this.draft) && force !== true) {
+      return this.draft;
+    }
+
+    const response =
+      await mfgFetch(`/api/league/${league._id}/draft`,
+        {method: 'GET'}
+      );
+
+    this.draft = response.draft;
+    return this.draft;
   }
 
   @action
@@ -129,11 +149,19 @@ class RosterService {
 
   @action
   async startDraft(league, draftOptions) {
-    await mfgFetch(`/api/league/${league._id}/draft`,
-      {
-        method: 'POST',
-        body: JSON.stringify({draftOptions})
-      });
+
+    const body = JSON.stringify({draftOptions});
+
+    try {
+      await mfgFetch(`/api/league/${league._id}/draft`,
+        {
+          method: 'POST',
+          body: body
+        });
+    }
+    catch(err) {
+      console.log(err);
+    }
   }
 }
 

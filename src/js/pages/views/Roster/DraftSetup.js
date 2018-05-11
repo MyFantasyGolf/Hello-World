@@ -140,53 +140,58 @@ class DraftSetup extends React.Component {
     return (
       <div className="draft-setup">
         <div className="page-title">Draft Setup</div>
-        <div className="option-block">
-          <div>Draft Type</div>
-          <RadioButtonGroup
-            name="draftType"
-            valueSelected={this.state.draftType}
-            onChange={this.draftTypeChanged}
-          >
-            <RadioButton
-              label="Live Selection"
-              value="live"
-            />
-            <RadioButton
-              label="Auto-Draft by Lists"
-              value="auto"
-            />
-          </RadioButtonGroup>
-        </div>
 
-        <div className="option-block">
-          <div>Draft Order Type</div>
-          <RadioButtonGroup
-            name="draftOrder"
-            valueSelected={this.state.draftOrderType}
-            onChange={this.draftOrderTypeChanged}
-          >
-            <RadioButton
-              label="Set Order"
-              value="normal"
-            />
-            <RadioButton
-              label="Serpentine"
-              value="serpentine"
-            />
-            <RadioButton
-              label="Random (each round)"
-              value="random"
-            />
-          </RadioButtonGroup>
+        <div className="option-blocks">
+          <div className="option-block">
+            <div>Draft Type</div>
+            <RadioButtonGroup
+              className="radio-group"
+              name="draftType"
+              valueSelected={this.state.draftType}
+              onChange={this.draftTypeChanged}
+            >
+              <RadioButton
+                label="Live Selection"
+                value="live"
+              />
+              <RadioButton
+                label="Auto-Draft by Lists"
+                value="auto"
+              />
+            </RadioButtonGroup>
+          </div>
+
+          <div className="option-block">
+            <div>Draft Order Type</div>
+            <RadioButtonGroup
+              className="radio-group"
+              name="draftOrder"
+              valueSelected={this.state.draftOrderType}
+              onChange={this.draftOrderTypeChanged}
+            >
+              <RadioButton
+                label="Set Order"
+                value="normal"
+              />
+              <RadioButton
+                label="Serpentine"
+                value="serpentine"
+              />
+              <RadioButton
+                label="Random (each round)"
+                value="random"
+              />
+            </RadioButtonGroup>
+          </div>
         </div>
 
         { this.getOrderBox() }
 
-        <div className="option-block">
-          <div>Number of Rounds</div>
+        <div className="option-block rounds">
           <TextField
             name="numberOfRounds"
             type="number"
+            floatingLabelText="Number of Rounds"
             value={this.state.numberOfRounds}
             onChange={this.roundsChanged}
           />

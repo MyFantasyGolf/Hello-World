@@ -30,14 +30,17 @@ class LeagueRosters extends React.Component {
     availablePlayers = [],
     myDraftList = []) {
 
-    const { selectedLeague } = this.props.LeagueService;
+    const { draft } = this.props.RosterService;
 
-    if (isNil(selectedLeague)) {
+    if (isNil(draft)) {
       return;
     }
 
-    if (selectedLeague.draft.state === 'PREDRAFT') {
+    if (draft.state === 'PREDRAFT') {
       return this.getPredraft(availablePlayers, myDraftList);
+    }
+    else if (draft.state === 'INPROGRESS') {
+      return <div>In Progress</div>;
     }
 
     return <div>Not Implemented</div>;
@@ -81,9 +84,10 @@ class LeagueRosters extends React.Component {
 
     if (!isNil(ls.selectedLeague)) {
       rs.getAvailablePlayers(ls.selectedLeague);
+      rs.getDraft(ls.selectedLeague);
 
-      if (ls.selectedLeague.draft.state === 'PREDRAFT' ||
-        ls.selectedLeague.draft.state === 'INPROGRESS') {
+      if (!isNil(rs.draft) && (rs.draft.state === 'PREDRAFT' ||
+        rs.draft.state === 'INPROGRESS')) {
         rs.getMyDraftList(ls.selectedLeague);
       }
     }
@@ -92,12 +96,11 @@ class LeagueRosters extends React.Component {
   render() {
     //eslint-disable-next-line
     const {selectedLeague} = this.props.LeagueService;
-    const ap = this.props.RosterService.availablePlayers;
-    const draftList = this.props.RosterService.myDraftList;
+    const {availablePlayers, myDraftList} = this.props.RosterService;
 
     return (
       <div className="rosters">
-        { this.getContent(ap, draftList) }
+        { this.getContent(availablePlayers, myDraftList) }
       </div>
     );
   }
