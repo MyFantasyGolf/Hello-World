@@ -1,5 +1,6 @@
 const isNil = require('lodash/isNil');
 const leagueApi = require('../db/leagueApi');
+const draftApi = require('../db/draftApi');
 
 const getMyLeagues = async (request, response) => {
 
@@ -44,6 +45,18 @@ const getAvailablePlayers = async (request, response) => {
   response.send({players: players});
 };
 
+const getDraft = async (request, response) => {
+  const leagueId = request.params.leagueId;
+
+  if (isNil(leagueId)) {
+    response.status(500).send('League ID required');
+    return;
+  }
+
+  const draft = await draftApi.getDraft(leagueId);
+  response.send(draft);
+};
+
 const getDraftList = async (request, response) => {
   const leagueId = request.params.leagueId;
   const teamId = request.session.userId;
@@ -53,7 +66,7 @@ const getDraftList = async (request, response) => {
     return;
   }
 
-  const players = await leagueApi.getDraftList(leagueId, teamId);
+  const players = await draftApi.getDraftList(leagueId, teamId);
   response.send({players: players});
 };
 
@@ -67,7 +80,7 @@ const updateDraftList = async (request, response) => {
     return;
   }
 
-  await leagueApi.updateDraftList(leagueId, userId, newList);
+  await draftApi.updateDraftList(leagueId, userId, newList);
   response.send({'status': 'Success'});
 };
 
@@ -80,7 +93,7 @@ const startDraft = async (request, response) => {
     return;
   }
 
-  await leagueApi.startDraft(leagueId, draftOptions);
+  await draftApi.startDraft(leagueId, draftOptions);
   response.send();
 };
 
@@ -91,5 +104,6 @@ module.exports = {
   createLeague,
   getDraftList,
   updateDraftList,
-  startDraft
+  startDraft,
+  getDraft
 };

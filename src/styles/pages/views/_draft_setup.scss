@@ -1,7 +1,20 @@
 .draft-setup {
+
+  .option-blocks {
+    @media only screen and (min-width: $break_point) {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+    }
+  }
+
   .option-block {
     margin-bottom: 16px;
     margin-top: 16px;
+
+    @media only screen and (min-width: $break_point) {
+      text-align: center;
+    }
   }
 
   .middle {
@@ -9,6 +22,7 @@
   }
 
   .team-list {
+
     // box-shadow: 1px 2px 6px 0px rgba(0,0,0,0.2);
     margin-bottom: 8px;
     width: 100%;
