@@ -82,5 +82,7 @@ app.put('/api/league/:leagueId/draftList', league_service.updateDraftList);
 
 app.post('/api/league/:leagueId/draft', league_service.startDraft);
 app.get('/api/league/:leagueId/draft', league_service.getDraft);
+app.get('/api/league/:leagueId/draft/status', league_service.getDraftStatus);
+app.put('/api/league/:leagueId/draft/:round/:pick', league_service.makeDraftPick);
 
 app.listen(3000, () => console.log('MyFantasyGolf app listening on port 3000!'))

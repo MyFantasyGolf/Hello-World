@@ -1,6 +1,8 @@
 import { observable, action } from 'mobx';
 import isNil from 'lodash/isNil';
+import isString from 'lodash/isString';
 import mfgFetch from './mfgFetch';
+import ServiceRegistry from './ServiceRegistry';
 
 let instance;
 
@@ -9,6 +11,7 @@ class RosterService {
   @observable availablePlayers = undefined;
   @observable myDraftList = undefined;
   @observable draft = undefined;
+  @observable draftStatus = undefined;
 
   constructor() {
     if (isNil(instance)) {
@@ -18,21 +21,34 @@ class RosterService {
     return instance;
   }
 
-  @action
-  async getAvailablePlayers(league) {
+  getRoster(leagueId, teamId) {
+    const leagueService = ServiceRegistry.getService('LeagueService');
 
-    if (isNil(league)) {
+    if (isNil(leagueService.selectedLeague) ||
+      isNil(leagueService.selectedLeague.teams)) {
+      return [];
+    }
+
+    return leagueService.selectedLeague.teams.find( (team) => {
+      return team.user === teamId;
+    });
+  }
+
+  @action
+  async getAvailablePlayers(league, force = false) {
+
+    if (isNil(league) && force === false) {
       return this.availablePlayers;
     }
 
-    if (isNil(this.availablePlayers)) {
-      const response =
-        //eslint-disable-next-line
-        await mfgFetch(`/api/league/${league._id}/availablePlayers`,
-          {method: 'GET'});
+    const id = isString(league) ? league : league._id;
 
-      this.availablePlayers = response.players;
-    }
+    const response =
+      //eslint-disable-next-line
+      await mfgFetch(`/api/league/${id}/availablePlayers`,
+        {method: 'GET'});
+
+    this.availablePlayers = response.players;
 
     return this.availablePlayers;
   }
@@ -47,8 +63,10 @@ class RosterService {
       return this.draft;
     }
 
+    const id = isString(league) ? league : league._id;
+
     const response =
-      await mfgFetch(`/api/league/${league._id}/draft`,
+      await mfgFetch(`/api/league/${id}/draft`,
         {method: 'GET'}
       );
 
@@ -66,9 +84,15 @@ class RosterService {
       return this.myDraftList;
     }
 
+    const id = isString(league) ? league : league._id;
+
     const response =
-      await mfgFetch(`/api/league/${league._id}/draftList`,
+      await mfgFetch(`/api/league/${id}/draftList`,
         { method: 'GET' });
+
+    if (isNil(response)) {
+      return;
+    }
 
     this.myDraftList = response.players;
     return this.myDraftList;
@@ -157,6 +181,34 @@ class RosterService {
         method: 'POST',
         body: body
       });
+
+    this.getDraftStatus(league);
+  }
+
+  @action
+  async getDraftStatus(league) {
+    const id = isString(league) ? league : league._id;
+
+    const response = await mfgFetch(`/api/league/${id}/draft/status`,
+      {
+        method: 'GET'
+      });
+
+    this.draftStatus = response;
+    this.draft = this.draftStatus.draft;
+
+    return this.draftStatus;
+  }
+
+  async makePick(leagueId, round, pick, selection) {
+    const body = JSON.stringify(selection);
+    await mfgFetch(`/api/league/${leagueId}/draft/${round}/${pick}`,
+      {
+        method: 'PUT',
+        body: body
+      });
+
+    this.getDraftStatus(leagueId);
   }
 }
 

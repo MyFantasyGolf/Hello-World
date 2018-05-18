@@ -7,10 +7,20 @@ import { observer } from 'mobx-react';
 
 import PreDraft from './PreDraft';
 import Draft from './Draft';
+import RosterView from './RosterView';
 
 @inject('LeagueService', 'RosterService', 'AuthService')
 @observer
 class LeagueRosters extends React.Component {
+
+  initializing = false;
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      lastSelectedLeague: undefined
+    };
+  }
 
   getPredraft(availablePlayers, myDraftList) {
     return <PreDraft
@@ -31,24 +41,34 @@ class LeagueRosters extends React.Component {
     availablePlayers = [],
     myDraftList = []) {
 
-    const { draft } = this.props.RosterService;
+    const { RosterService, LeagueService, AuthService } = this.props;
+    const { draftStatus } = RosterService;
 
-    if (isNil(draft)) {
+    if (isNil(draftStatus) || isNil(draftStatus.draft)) {
       return;
     }
 
-    if (draft.state === 'PREDRAFT') {
+    if (draftStatus.draft.state === 'PREDRAFT') {
       return this.getPredraft(availablePlayers, myDraftList);
     }
-    else if (draft.state === 'INPROGRESS') {
+
+    const myTeam = RosterService.getRoster(
+      LeagueService.selectedLeague._id,
+      AuthService.me._id
+    );
+
+
+    if (draftStatus.draft.state === 'INPROGRESS') {
+
       return <Draft
-        draft={draft}
-        availablePlayers={availablePlayers}
-        myDraftList={myDraftList}
+        leagueId={LeagueService.selectedLeague._id}
+        teamName={LeagueService.getTeamNameFromIdForSelectedLeague}
+        roster={myTeam.currentRoster.toJS()}
+        me={this.props.AuthService.me._id}
       />;
     }
 
-    return <div>Not Implemented</div>;
+    return <RosterView team={myTeam} />;
   }
 
   addPlayerToMyList = (player) => {
@@ -79,29 +99,51 @@ class LeagueRosters extends React.Component {
       this.props.LeagueService.selectedLeague, draftOptions);
   }
 
-  componentDidMount() {
-    this.componentWillReact();
-  }
-
-  componentWillReact() {
+  async reinit() {
     const ls = this.props.LeagueService;
     const rs = this.props.RosterService;
 
-    if (!isNil(ls.selectedLeague)) {
-      rs.getAvailablePlayers(ls.selectedLeague);
-      rs.getDraft(ls.selectedLeague);
+    if (isNil(ls.selectedLeague)) {
+      return;
+    }
 
-      if (!isNil(rs.draft) && (rs.draft.state === 'PREDRAFT' ||
-        rs.draft.state === 'INPROGRESS')) {
-        rs.getMyDraftList(ls.selectedLeague);
-      }
+    await rs.getAvailablePlayers(ls.selectedLeague, true);
+    await rs.getDraftStatus(ls.selectedLeague);
+
+    if (!isNil(rs.draft) && (rs.draft.state === 'PREDRAFT' ||
+      rs.draft.state === 'INPROGRESS')) {
+      rs.getMyDraftList(ls.selectedLeague, true);
+    }
+
+    this.setState({
+      ...this.state,
+      lastSelectedLeague: ls.selectedLeague
+    });
+  }
+
+  componentDidMount() {
+    if (!isNil(this.props.LeagueService.selectedLeague._id)) {
+      this.reinit();
+    }
+  }
+
+  async componentWillReact() {
+    if (!isNil(this.state) &&
+      this.state.lastSelectedLeague !==
+      this.props.LeagueService.selectedLeague &&
+      this.initializing === false) {
+      this.initializing = true;
+      await this.reinit();
+      this.initializing = false;
     }
   }
 
   render() {
     //eslint-disable-next-line
     const {selectedLeague} = this.props.LeagueService;
-    const {availablePlayers, myDraftList} = this.props.RosterService;
+
+    //eslint-disable-next-line
+    const {availablePlayers, myDraftList, draft} = this.props.RosterService;
 
     return (
       <div className="rosters">

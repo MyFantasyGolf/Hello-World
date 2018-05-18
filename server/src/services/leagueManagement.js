@@ -61,7 +61,7 @@ const getDraftList = async (request, response) => {
   const leagueId = request.params.leagueId;
   const teamId = request.session.userId;
 
-  if (isNil(leagueId) || isNil(teamId)) {
+  if (isNil(leagueId) || isNil(teamId) || leagueId === 'undefined') {
     response.status(500).send('Insufficient information provided.');
     return;
   }
@@ -97,6 +97,37 @@ const startDraft = async (request, response) => {
   response.send({'status': 'Success'});
 };
 
+const getDraftStatus = async (request, response) => {
+  const leagueId = request.params.leagueId;
+
+  if (isNil(leagueId)) {
+    response.status(500).send('Not a valid league ID');
+    return;
+  }
+
+  const status = await draftApi.draftStatus(leagueId);
+  response.send(status);
+  return;
+};
+
+const makeDraftPick = async (request, response) => {
+  const leagueId = request.params.leagueId;
+  const round = request.params.round;
+  const pick = request.params.pick;
+  const selection = request.body;
+
+  if (isNil(leagueId) || isNil(round) || isNil(pick) || isNil(selection)) {
+    response.status(500).send('Not enough information to make a valid pick.');
+    return;
+  }
+
+  await draftApi.makePick(leagueId,
+    parseInt(round) - 1,
+    parseInt(pick) - 1,
+    selection);
+  response.send();
+}
+
 module.exports = {
   getMyLeagues,
   getAvailablePlayers,
@@ -105,5 +136,7 @@ module.exports = {
   getDraftList,
   updateDraftList,
   startDraft,
-  getDraft
+  getDraft,
+  getDraftStatus,
+  makeDraftPick
 };
