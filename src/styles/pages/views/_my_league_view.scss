@@ -1,9 +1,9 @@
 .my-league-view {
 
-  padding-left: 8px;
-
   .top-bar {
     display: flex;
+    border-bottom: 2px solid $dark;
+    padding-left: 8px;
   }
 
   .expanded {

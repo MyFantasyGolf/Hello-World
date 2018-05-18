@@ -2,10 +2,26 @@ const conn = require('./connection');
 const season = require('../utils/season');
 const moment = require('moment');
 const isNil = require('lodash/isNil');
+const isString = require('lodash/isNil');
 const ObjectId = require('mongodb').ObjectId;
 
 const updateLeague = async (league) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
 
+  const leagueId = isString(league) ?
+    league : league._id;
+
+  try {
+    await coll.findOneAndUpdate({
+      '_id': ObjectId(leagueId),
+      'season': season.getSeason(moment())
+    },
+    league);
+  }
+  catch(err) {
+    console.log(`Error saving league ${legaueId}`);
+  }
 };
 
 const getLeaguesForUser = async (userId) => {
@@ -33,6 +49,13 @@ const getLeaguesForUser = async (userId) => {
 const getLeague = async( leagueId ) => {
   const db = await conn.db;
   const coll = db.collection('leagues');
+
+  const league = await coll.findOne({
+    '_id': ObjectId(leagueId),
+    'season': season.getSeason(moment())
+  });
+
+  return league;
 };
 
 const createLeague = async (league) => {
@@ -80,7 +103,24 @@ const getAvailablePlayers = async (leagueId) => {
         }
       }]).toArray();
 
-    return megaMatch[0].players[0].players;
+    const league = await getLeague(leagueId);
+    const signedPlayers = [];
+
+    league.teams.forEach( (team) => {
+      team.currentRoster.forEach( (player) => {
+        signedPlayers.push(player);
+      });
+    })
+
+    const filteredList = megaMatch[0].players[0].players.filter( (player) => {
+      const index = signedPlayers.findIndex( (sp) => {
+        return sp.key === player.key;
+      });
+
+      return index === -1;
+    });
+
+    return filteredList;
   }
   catch(err) {
     console.log(`Error getting player list ${err}`);
@@ -92,5 +132,6 @@ const getAvailablePlayers = async (leagueId) => {
 module.exports = {
   saveLeague,
   getLeaguesForUser,
-  getAvailablePlayers
+  getAvailablePlayers,
+  getLeague
 };

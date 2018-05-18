@@ -8,7 +8,8 @@ let instance;
 class LeagueService {
 
   @observable myLeagues = [];
-  @observable selectedLeague = undefined;
+  @observable selectedLeague = {};
+  @observable myroster = [];
 
   constructor() {
     if (isNil(instance)) {
@@ -37,6 +38,13 @@ class LeagueService {
     else {
       this.selectedLeague = league;
     }
+  }
+
+  getTeamNameFromIdForSelectedLeague = (leagueId, teamId) => {
+
+    return this.selectedLeague.teams.find( (team) => {
+      return team.user === teamId;
+    });
   }
 
   @action
