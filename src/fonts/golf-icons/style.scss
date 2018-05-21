@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'golf-icons';
-  src:  url('../fonts/golf-icons/golf-icons.eot?wzyxqx');
-  src:  url('../fonts/golf-icons/golf-icons.eot?wzyxqx#iefix') format('embedded-opentype'),
-    url('../fonts/golf-icons/golf-icons.ttf?wzyxqx') format('truetype'),
-    url('../fonts/golf-icons/golf-icons.woff?wzyxqx') format('woff'),
-    url('../fonts/golf-icons/golf-icons.svg?wzyxqx#golf-icons') format('svg');
+  src:  url('../fonts/golf-icons/golf-icons.eot?vtnll2');
+  src:  url('../fonts/golf-icons/golf-icons.eot?vtnll2#iefix') format('embedded-opentype'),
+    url('../fonts/golf-icons/golf-icons.ttf?vtnll2') format('truetype'),
+    url('../fonts/golf-icons/golf-icons.woff?vtnll2') format('woff'),
+    url('../fonts/golf-icons/golf-icons.svg?vtnll2#golf-icons') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -30,6 +30,12 @@
 .golf-icons-golf-tee:before {
   content: "\e901";
 }
+.golf-icons-remove:before {
+  content: "\e90e";
+}
+.golf-icons-trends:before {
+  content: "\e90f";
+}
 .golf-icons-arrow-with-circle-down:before {
   content: "\e902";
 }
@@ -54,8 +60,26 @@
 .golf-icons-chevron-up:before {
   content: "\e909";
 }
+.golf-icons-flow-tree:before {
+  content: "\e910";
+}
+.golf-icons-trash:before {
+  content: "\e911";
+}
+.golf-icons-address:before {
+  content: "\e912";
+}
+.golf-icons-area-graph:before {
+  content: "\e913";
+}
+.golf-icons-check:before {
+  content: "\e914";
+}
 .golf-icons-circle-with-plus:before {
   content: "\e90a";
+}
+.golf-icons-credit:before {
+  content: "\e915";
 }
 .golf-icons-cross2:before {
   content: "\e90b";
@@ -63,8 +87,29 @@
 .golf-icons-erase:before {
   content: "\e90c";
 }
+.golf-icons-home2:before {
+  content: "\e916";
+}
+.golf-icons-magnifying-glass:before {
+  content: "\e917";
+}
+.golf-icons-mail:before {
+  content: "\e918";
+}
 .golf-icons-plus2:before {
   content: "\e90d";
+}
+.golf-icons-text-document:before {
+  content: "\e919";
+}
+.golf-icons-home:before {
+  content: "\e91a";
+}
+.golf-icons-home3:before {
+  content: "\e91b";
+}
+.golf-icons-price-tag:before {
+  content: "\e935";
 }
 .golf-icons-coin-dollar:before {
   content: "\e93b";
@@ -93,11 +138,20 @@
 .golf-icons-trophy:before {
   content: "\e99e";
 }
+.golf-icons-bin:before {
+  content: "\e9ac";
+}
 .golf-icons-list-numbered:before {
   content: "\e9b9";
 }
+.golf-icons-list2:before {
+  content: "\e9bb";
+}
 .golf-icons-tree:before {
   content: "\e9bc";
+}
+.golf-icons-bookmark:before {
+  content: "\e9d2";
 }
 .golf-icons-star-empty:before {
   content: "\e9d7";

@@ -7,7 +7,7 @@ import isNil from 'lodash/isNil';
 import PlayerRow from './PlayerRow';
 import DraftSetup from './DraftSetup';
 
-import RaisedButton from 'material-ui/RaisedButton';
+import Button from '@material-ui/core/Button';
 
 class PreDraft extends React.Component {
 
@@ -108,11 +108,13 @@ class PreDraft extends React.Component {
   getStartDraftOption() {
     return this.props.isCommisioner ?
       (<div className="start-draft">
-        <RaisedButton
-          label="Start Draft"
-          primary={true}
+        <Button
+          variant="raised"
+          color="primary"
           onClick={this.showDraftOptions}
-        />
+        >
+          Start Draft
+        </Button>
       </div>) :
       <span></span>;
   }

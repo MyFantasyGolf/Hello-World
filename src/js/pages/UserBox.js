@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import inject from '../services/inject';
 
-import FlatButton from 'material-ui/FlatButton';
-import Popover from 'material-ui/Popover';
-import Menu from 'material-ui/Menu';
-import MenuItem from 'material-ui/MenuItem';
+import Button from '@material-ui/core/Button';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 @inject('AuthService')
 class UserBox extends React.Component {
@@ -56,25 +55,27 @@ class UserBox extends React.Component {
 
     return (
       <div className="user-box">
-        <FlatButton
-          label={ name }
-          secondary={true}
-          onClick={ this.toggleMenu } />
-        <Popover
+        <Button
+          variant="flat"
+          color="secondary"
+          onClick={ this.toggleMenu }>
+          {name}
+        </Button>
+        <Menu
           open={this.state.open}
           anchorEl={this.state.anchorElement}
-          anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-          targetOrigin={{horizontal: 'left', vertical: 'top'}}
-          onRequestClose={this.closeMenu}>
-          <Menu>
-            <MenuItem
-              primaryText="Change password"
-              onClick={ this.changePassword }/>
-            <MenuItem
-              primaryText="Logout"
-              onClick={ this.logout }/>
-          </Menu>
-        </Popover>
+        >
+          <MenuItem
+            onClick={ this.changePassword }
+          >
+            Change password
+          </MenuItem>
+          <MenuItem
+            onClick={ this.logout }
+          >
+            Logout
+          </MenuItem>
+        </Menu>
       </div>
     );
   }

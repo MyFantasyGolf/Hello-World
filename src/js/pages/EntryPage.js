@@ -10,23 +10,20 @@ import isNil from 'lodash/isNil';
 import { observer } from 'mobx-react';
 import inject from '../services/inject';
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import {
-  green500, green700, amber500,
-} from 'material-ui/styles/colors';
-
-const muiTheme = getMuiTheme({
-  'palette': {
-    'primary1Color': green500,
-    'primary2Color': green700,
-    'accent1Color': amber500,
+const muiTheme = createMuiTheme({
+  palette: {
+    primary: {
+      main: '#33691e'
+    },
+    secondary: {
+      main: '#c0ca33'
+    }
   },
 });
 
-import LoginPage from './LoginPage';
-import RegistrationPage from './RegistrationPage';
+import LoginPage from './views/login/LoginPage';
 import HomePage from './HomePage';
 
 @inject('AuthService')
@@ -49,31 +46,23 @@ class EntryPage extends React.Component {
 
   buildLoginRoute() {
     if (isNil(this.props.AuthService.me)) {
-      return <Route exact path="/login" component={LoginPage} />;
+      return <Route path="/login" component={LoginPage} />;
     }
 
     return <Redirect from="/login" to="/" />;
   }
 
-  buildRegisterRoute() {
-    if (isNil(this.props.AuthService.me)) {
-      return <Route exact path="/register" component={RegistrationPage} />;
-    }
-
-    return <Redirect from="/register" to="/" />;
-  }
-
   buildLoadedScreen() {
     return (
-      <MuiThemeProvider muiTheme={muiTheme}>
+      <MuiThemeProvider theme={muiTheme}>
         <BrowserRouter>
           <Switch>
             { this.buildLoginRoute() }
-            { this.buildRegisterRoute() }
             { isNil(this.props.AuthService.me) &&
               <Redirect to="/login" />
             }
-            <Route path="/" component={HomePage} />
+            <Route path="/mfg" component={HomePage} />
+            <Redirect exact from="/" to="/mfg" />
           </Switch>
         </BrowserRouter>
       </MuiThemeProvider>

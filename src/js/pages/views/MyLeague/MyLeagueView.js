@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Icon from '@material-ui/core/Icon';
+
 import LeagueStandings from '../LeagueStandings';
 import LeagueRosters from '../Roster/LeagueRosters';
 import LeagueTransactions from '../LeagueTransactions';
@@ -9,18 +11,29 @@ import LeagueAdmin from '../LeagueAdmin';
 
 import PhoneNav from './PhoneNav';
 import RouteButton from '../../../widgets/RouteButton';
-import LeagueSelect from './LeagueSelect';
 
 import {
   withRouter,
   Route,
-  Switch
+  Switch,
+  Redirect
 } from 'react-router-dom';
 
+import { observer } from 'mobx-react';
+import inject from '../../../services/inject';
+
+@inject('LeagueService')
+@observer
 class MyLeagueView extends React.Component {
 
-  navigate = ($event, value) => {
-    this.props.history.push(`/myleagues${value}`);
+  navigate = (value) => {
+    this.props.history.push(
+      `/mfg/myleagues/${this.props.LeagueService.selectedLeague._id}` +
+      `${value}`);
+  }
+
+  returnHome = () => {
+    this.props.history.push('/mfg/home');
   }
 
   render() {
@@ -28,49 +41,62 @@ class MyLeagueView extends React.Component {
       <div className="my-league-view">
         <div className="top-bar">
           <PhoneNav navigate={ this.navigate } />
-          <LeagueSelect />
+
+          <div className="back-home" onClick={this.returnHome}>
+            <Icon className="icon golf-icons-home" />
+            <a>Return home</a>
+
+            <div className="league-name">
+              {this.props.LeagueService.selectedLeague.name}
+            </div>
+          </div>
+
+          <div className="league-name-phone">
+            {this.props.LeagueService.selectedLeague.name}
+          </div>
+
         </div>
-        
+
         <div className="content-parent">
           <div className="expanded">
             <RouteButton
               title="Standings"
               iconClass="golf-icons-list-numbered"
-              route="/myleagues/standings"
+              route="/standings"
               onClick={ () => {
-                this.navigate(null, '/standings');
+                this.navigate('/standings');
               }}
             />
             <RouteButton
               title="Rosters"
               iconClass="golf-icons-user"
-              route="/myleagues/rosters"
+              route="/rosters"
               onClick={ () => {
-                this.navigate(null, '/rosters');
+                this.navigate('/rosters');
               }}
             />
             <RouteButton
               title="Transactions"
               iconClass="golf-icons-tree"
-              route="/myleagues/transactions"
+              route="/transactions"
               onClick={ () => {
-                this.navigate(null, '/transactions');
+                this.navigate('/transactions');
               }}
             />
             <RouteButton
               title="Notes"
               iconClass="golf-icons-bubbles"
-              route="/myleagues/notes"
+              route="/notes"
               onClick={ () => {
-                this.navigate(null, '/notes');
+                this.navigate('/notes');
               }}
             />
             <RouteButton
               title="Administration"
               iconClass="golf-icons-cog"
-              route="/myleagues/leagueadmin"
+              route="/leagueadmin"
               onClick={ () => {
-                this.navigate(null, '/leagueadmin');
+                this.navigate('/leagueadmin');
               }}
             />
           </div>
@@ -78,13 +104,21 @@ class MyLeagueView extends React.Component {
           <div className="content">
             <Switch>
               <Route
-                path="/myleagues/standings"
+                path="/mfg/myleagues/:leagueId/standings"
                 component={ LeagueStandings } />
-              <Route path="/myleagues/rosters" component={ LeagueRosters } />
-              <Route path="/myleagues/transactions"
+              <Route
+                path="/mfg/myleagues/:leagueId/rosters"
+                component={ LeagueRosters } />
+              <Route
+                path="/mfg/myleagues/:leagueId/transactions"
                 component={ LeagueTransactions } />
-              <Route path="/myleagues/notes" component={ LeagueNotes } />
-              <Route path="/myleagues/leagueadmin" component={ LeagueAdmin } />
+              <Route
+                path="/mfg/myleagues/:leagueId/notes"
+                component={ LeagueNotes } />
+              <Route
+                path="/mfg/myleagues/:leagueId/leagueadmin"
+                component={ LeagueAdmin } />
+              <Redirect to="/mfg/myleagues/:leagueId/standings" />
             </Switch>
           </div>
         </div>
@@ -94,7 +128,8 @@ class MyLeagueView extends React.Component {
 }
 
 MyLeagueView.propTypes = {
-  history: PropTypes.object
+  history: PropTypes.object,
+  LeagueService: PropTypes.object
 };
 
 export default withRouter(MyLeagueView);
