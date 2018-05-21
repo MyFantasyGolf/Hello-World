@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import Popover from 'material-ui/Popover';
-import Menu from 'material-ui/Menu';
-import MenuItem from 'material-ui/MenuItem';
-import FontIcon from 'material-ui/FontIcon';
-import IconButton from 'material-ui/IconButton';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import IconButton from '@material-ui/core/IconButton';
+import Icon from '@material-ui/core/Icon';
 
 class PhoneNav extends React.Component {
 
@@ -13,7 +14,7 @@ class PhoneNav extends React.Component {
     super(props);
 
     this.state = {
-      navPopver: false,
+      navPopover: false,
       anchorEl: null
     };
   }
@@ -21,7 +22,7 @@ class PhoneNav extends React.Component {
   handleRequestClose = () => {
     this.setState({
       ...this.state,
-      navPopver: false
+      navPopover: false
     });
   }
 
@@ -33,53 +34,70 @@ class PhoneNav extends React.Component {
     });
   }
 
-  menuClicked = ($event, value) => {
+  menuClicked = (value) => {
     this.setState({
       ...this.state,
       navPopover: false
     });
 
-    this.props.navigate($event, value);
+    this.props.navigate(value);
   }
 
   render() {
     return (
       <div className="condensed">
         <IconButton
-          iconStyle={{ marginTop: '23px' }}
+          variant=""
           className="icon-position"
-          iconClassName="golf-icons-equalizer"
-          onClick={ this.toggleNavMenu }/>
-        <Popover
+          onClick={ this.toggleNavMenu }>
+          <Icon className="golf-icons-equalizer" />
+        </IconButton>
+
+        <Menu
           open={ this.state.navPopover }
-          anchorEl={this.state.anchorEl}
-          anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-          targetOrigin={{horizontal: 'left', vertical: 'top'}}
-          onRequestClose={ this.handleRequestClose }
-        >
-          <Menu onChange={ this.menuClicked }>
-            <MenuItem primaryText="Standings"
-              leftIcon={
-                <FontIcon className="golf-icons-list-numbered" />
-              } value="/standings"/>
-            <MenuItem primaryText="Rosters"
-              leftIcon={
-                <FontIcon className="golf-icons-user" />
-              } value="/rosters"/>
-            <MenuItem primaryText="Transactions"
-              leftIcon={
-                <FontIcon className="golf-icons-tree" />
-              } value="/transactions"/>
-            <MenuItem primaryText="Notes"
-              leftIcon={
-                <FontIcon className="golf-icons-bubbles" />
-              } value="/notes"/>
-            <MenuItem primaryText="Admin"
-              leftIcon={
-                <FontIcon className="golf-icons-cog" />
-              } value="/leagueadmin"/>
-          </Menu>
-        </Popover>
+          anchorEl={this.state.anchorEl}>
+          <MenuItem
+            onClick={() => { this.menuClicked('/standings'); }}
+          >
+            <ListItemIcon>
+              <Icon className="golf-icons-list-numbered" />
+            </ListItemIcon>
+            <ListItemText inset primary="Standings" />
+          </MenuItem>
+          <MenuItem
+            onClick={() => { this.menuClicked('/rosters'); }}
+          >
+            <ListItemIcon>
+              <Icon className="golf-icons-user"/>
+            </ListItemIcon>
+            <ListItemText inset primary="Rosters" />
+          </MenuItem>
+          <MenuItem
+            onClick={() => { this.menuClicked('/transactions'); }}
+          >
+            <ListItemIcon>
+              <Icon className="golf-icons-tree" />
+            </ListItemIcon>
+            <ListItemText inset primary="Transactions" />
+          </MenuItem>
+          <MenuItem
+            onClick={() => { this.menuClicked('/notes'); }}
+          >
+            <ListItemIcon>
+              <Icon className="golf-icons-bubbles"/>
+            </ListItemIcon>
+            <ListItemText inset primary="Notes" />
+          </MenuItem>
+          <MenuItem
+            onClick={() => { this.menuClicked('/leagueadmin'); }}
+          >
+            <ListItemIcon>
+              <Icon className="golf-icons-cog" />
+            </ListItemIcon>
+            <ListItemText inset primary="Admin" />
+          </MenuItem>
+        </Menu>
+
       </div>
     );
   }

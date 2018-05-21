@@ -1,0 +1,51 @@
+.home-view {
+  margin: 24px;
+
+  .home {
+
+    margin-bottom: 8px;
+    display: flex;
+    color: $dark;
+    font-family: $golf_font;
+
+    .location {
+      font-size: 28px;
+      padding-top: 10px;
+    }
+
+    .icon {
+      padding: 2px;
+      margin: 8px;
+      background-color: $dark;
+      border-radius: 24px;
+      color: $light;
+      font-size: 36px;
+    }
+  }
+
+  .title {
+    background-color: $dark;
+    color: white;
+    border-radius: 6px;
+    font-size: 24px;
+    padding: 12px;
+    margin-top: 4px;
+  }
+}
+
+.league-listing {
+  padding: 8px;
+  margin-left: 4px;
+  margin-right: 4px;
+  cursor: pointer;
+  font-size: 20px;
+  color: $dark;
+  font-weight: bolder;
+  background-color: #efefef;
+  border-bottom: 1px solid #cccccc;
+
+  &:hover {
+    background: $alt;
+    color: white;
+  }
+}

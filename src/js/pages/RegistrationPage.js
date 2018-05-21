@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import TextField from 'material-ui/TextField';
-import RaisedButton from 'material-ui/RaisedButton';
+import TextField from '@material-ui/TextField';
+import Button from '@material-ui/core/Button';
 
 import isNil from 'lodash/isNil';
 
@@ -56,7 +56,7 @@ class RegistrationPage extends React.Component {
 
         <div className="login">
           <div>
-            <TextField 
+            <TextField
               id="firstName"
               placeholder="First Name"
               required={true}
@@ -91,11 +91,12 @@ class RegistrationPage extends React.Component {
             <div className="error">{ this.state.error }</div>
           }
           <div className="register-buttons">
-            <RaisedButton
+            <Button
+              variant="raised"
               primary={true}
               onClick={ this.registerClicked }>
               Register
-            </RaisedButton>
+            </Button>
           </div>
           <div className="login-link">
             <a href="/login">Already have an account? Login.</a>

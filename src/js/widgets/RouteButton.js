@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import IconButton from 'material-ui/IconButton';
+import IconButton from '@material-ui/core/IconButton';
+import Icon from '@material-ui/core/Icon';
 
 import { withRouter } from 'react-router-dom';
 
@@ -13,21 +14,19 @@ const RouteButton = ({
   history
 }) => {
 
-  const selected = history.location.pathname === route;
+  const selected = history.location.pathname.endsWith(route);
 
   const selection = selected ?
     'selected' : 'not-selected';
 
-  const iconStyle = selected ?
-    { color: 'white' } : {};
-
   return(
     <div className={ `navItem ${selection}` }>
       <IconButton
-        iconClassName={ iconClass }
+        variant="flat"
+        color="secondary"
         onClick={ onClick }
-        iconStyle={ iconStyle }
       >
+        <Icon className={iconClass}/>
       </IconButton>
       <div className="title">{ title }</div>
     </div>

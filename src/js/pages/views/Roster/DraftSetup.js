@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  RadioButtonGroup,
-  RadioButton
-} from 'material-ui/RadioButton';
-
-import TextField from 'material-ui/TextField';
-import RaisedButton from 'material-ui/RaisedButton';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 import PlayerRow from './PlayerRow';
 
@@ -144,66 +142,76 @@ class DraftSetup extends React.Component {
         <div className="option-blocks">
           <div className="option-block">
             <div>Draft Type</div>
-            <RadioButtonGroup
+            <RadioGroup
               className="radio-group"
               name="draftType"
-              valueSelected={this.state.draftType}
+              value={this.state.draftType}
               onChange={this.draftTypeChanged}
             >
-              <RadioButton
+              <FormControlLabel
                 label="Live Selection"
                 value="live"
+                control={<Radio />}
               />
-              <RadioButton
+              <FormControlLabel
                 label="Auto-Draft by Lists"
                 value="auto"
+                control={<Radio />}
               />
-            </RadioButtonGroup>
+            </RadioGroup>
           </div>
 
           <div className="option-block">
             <div>Draft Order Type</div>
-            <RadioButtonGroup
+            <RadioGroup
               className="radio-group"
               name="draftOrder"
-              valueSelected={this.state.draftOrderType}
+              value={this.state.draftOrderType}
               onChange={this.draftOrderTypeChanged}
             >
-              <RadioButton
+              <FormControlLabel
                 label="Set Order"
                 value="normal"
+                control={<Radio />}
               />
-              <RadioButton
+              <FormControlLabel
                 label="Serpentine"
                 value="serpentine"
+                control={<Radio />}
               />
-              <RadioButton
+              <FormControlLabel
                 label="Random (each round)"
                 value="random"
+                control={<Radio />}
               />
-            </RadioButtonGroup>
+            </RadioGroup>
           </div>
         </div>
 
-        { this.getOrderBox() }
+        <div className="option-blocks">
+          { this.getOrderBox() }
 
-        <div className="option-block rounds">
-          <TextField
-            name="numberOfRounds"
-            type="number"
-            floatingLabelText="Number of Rounds"
-            value={this.state.numberOfRounds}
-            onChange={this.roundsChanged}
-          />
+          <div className="option-block rounds">
+            <TextField
+              name="numberOfRounds"
+              type="number"
+              label="Number of Rounds"
+              value={this.state.numberOfRounds}
+              onChange={this.roundsChanged}
+            />
+          </div>
         </div>
 
-        <div className="option-block middle">
-          <RaisedButton
-            primary={true}
-            label="Start Draft"
+        <div className="middle">
+          <Button
+            variant="raised"
+            color="primary"
             onClick={this.startDraft}
-          />
+          >
+            Start Draft
+          </Button>
         </div>
+
       </div>
     );
   }

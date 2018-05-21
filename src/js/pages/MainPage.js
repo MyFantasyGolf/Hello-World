@@ -2,20 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import inject from '../services/inject';
 
-import MainNavBar from './MainNavBar';
-import HomeView from './views/HomeView';
+import HomeView from './views/home/HomeView';
 import MyLeagueView from './views/MyLeague/MyLeagueView';
 import AdminView from './views/AdminView';
 
-import FontIcon from 'material-ui/FontIcon';
-import {BottomNavigation, BottomNavigationItem}
-  from 'material-ui/BottomNavigation';
+import Icon from '@material-ui/core/Icon';
+import BottomNavigation from '@material-ui/core/BottomNavigation';
+import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 
 import { observer } from 'mobx-react';
 
 import {
   withRouter,
   Route,
+  Redirect,
   Switch
 } from 'react-router-dom';
 
@@ -40,21 +40,27 @@ class MainPage extends React.Component {
   render() {
     return (
       <div className="main-area">
-        <MainNavBar navSelected={ this.navigate }/>
+
         <div className="center-panel">
           <Switch>
-            <Route path="/home" component={HomeView} />
-            <Route path="/myleagues" component={MyLeagueView} />
-            <Route path="/admin" component={AdminView} />
+            <Route path="/mfg/home" component={HomeView} />
+            <Route path="/mfg/myleagues" render={() => {
+              return (
+                <MyLeagueView/>
+              );
+            }}
+            />
+            <Route path="/mfg/admin" component={AdminView} />
+            <Redirect to="/mfg/home" />
           </Switch>
         </div>
         <div className="bottom-nav-bar">
           <BottomNavigation>
-            <BottomNavigationItem
+            <BottomNavigationAction
               label="Home"
-              icon={<FontIcon className="golf-icons-bubbles" />}
+              icon={<Icon className="golf-icons-home" />}
               onClick={ () => {
-                this.navigate('/home');
+                this.navigate('/mfg/home');
               }}
             />
           </BottomNavigation>

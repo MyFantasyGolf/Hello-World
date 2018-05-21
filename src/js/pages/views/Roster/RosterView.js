@@ -47,7 +47,7 @@ RosterView.propTypes = {
   team: PropTypes.shape({
     user: PropTypes.string,
     name: PropTypes.string,
-    currentRoster: PropTypes.array
+    currentRoster: PropTypes.any
   })
 };
 
