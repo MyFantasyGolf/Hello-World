@@ -27,6 +27,12 @@ class LeagueService {
     return !isNil(user);
   }
 
+  async createLeague(league) {
+    await mfgFetch('/api/league',
+      { method: 'POST', body: JSON.stringify(league)});
+    await this.loadMyLeagues();
+  }
+
   @action
   selectLeague(league) {
 

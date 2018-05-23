@@ -51,7 +51,7 @@ class UserBox extends React.Component {
 
   render() {
     // eslint-disable-next-line
-    const name = this.props.AuthService.me.firstName;
+    const name = this.props.AuthService.me.name;
 
     return (
       <div className="user-box">

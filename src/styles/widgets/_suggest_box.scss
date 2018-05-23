@@ -1,0 +1,15 @@
+.suggest-box {
+  position: relative;
+
+  .list-items {
+    max-height: 150px;
+    overflow: auto;
+    position: absolute;
+    z-index: 99;
+  }
+
+  .selected-list {
+    padding-top: 4px;
+    text-align: left;
+  }
+}
