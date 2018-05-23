@@ -76,9 +76,16 @@ const getUser = async (request, response) => {
   return;
 };
 
+const getUsers = async (request, response) => {
+  const users = await userMgmt.getUsers();
+  response.send(users);
+  return;
+};
+
 module.exports = {
   registerUser,
   login,
   logout,
-  getUser
+  getUser,
+  getUsers
 };

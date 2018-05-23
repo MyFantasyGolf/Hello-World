@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import inject from '../../../services/inject';
 import { observer } from 'mobx-react';
 
+import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 import LeagueListing from './LeagueListing';
 
@@ -34,6 +35,27 @@ class HomeView extends React.Component {
     this.props.history.push(`/mfg/myleagues/${league._id}`);
   }
 
+  createLeague = () => {
+    this.props.history.push('/mfg/league_creation');
+  }
+
+  getCreateMessage() {
+    return (
+      <div>
+        <span>You are not currently involved in any leagues. </span>
+        <span>Why not
+          <a onClick={this.createLeague}>create one</a>
+           now and get started!</span>
+      </div>
+    );
+  }
+
+  getContent() {
+    return this.props.LeagueService.myLeagues.length === 0 ?
+      this.getCreateMessage() :
+      this.getLeagueList();
+  }
+
   render() {
     return (
       <div className="home-view">
@@ -45,10 +67,18 @@ class HomeView extends React.Component {
 
         <div className="my-leagues">
           <div className="title shadow">
-            My Leagues
+            <div>My Leagues</div>
+            <div>
+              <IconButton
+                className="small-button"
+                color="secondary"
+                onClick={this.createLeague}>
+                <Icon className="golf-icons-plus" />
+              </IconButton>
+            </div>
           </div>
           <div className="league-list">
-            { this.getLeagueList() }
+            { this.getContent() }
           </div>
         </div>
 
@@ -57,7 +87,6 @@ class HomeView extends React.Component {
             My Invitations
           </div>
         </div>
-
       </div>
     );
   }

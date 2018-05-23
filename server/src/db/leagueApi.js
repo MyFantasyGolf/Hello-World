@@ -1,5 +1,6 @@
 const conn = require('./connection');
 const season = require('../utils/season');
+const userApi = require('./userApi');
 const moment = require('moment');
 const isNil = require('lodash/isNil');
 const isString = require('lodash/isNil');
@@ -70,8 +71,16 @@ const createLeague = async (league) => {
       rounds: []
     };
 
-    league.teams = [];
     await coll.insertOne({ ...league });
+
+    // now create users that aren't registered
+    const unregisteredUsers = league.invitations.filter( (invite) => {
+      return isNil(invite.id);
+    });
+
+    unregisteredUsers.forEach( (user) => {
+      userApi.registerUser(user, false);
+    });
   }
   catch(err) {
     console.log(`Error saving league: ${err}`);

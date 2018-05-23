@@ -17,20 +17,15 @@ const getLeague = (request, response) => {
 
 const createLeague = async (request, response) => {
   const league = request.body;
-  league.owner = request.session.userId;
 
   if (isNil(league.name) ||
-    isNil(league.owner)) {
+    isNil(league.commissioner)) {
     response.status(500).send('A league name and owner are required.');
     return;
   }
 
-  if (isNil(league.manager)) {
-    league.manager = [league.owner];
-  }
-
   await leagueApi.saveLeague(league);
-  response.send();
+  response.send({status: 'success'});
 };
 
 const getAvailablePlayers = async (request, response) => {

@@ -1,0 +1,15 @@
+.create-league {
+  text-align: center;
+
+  .title {
+    color: $dark;
+    font-weight: bolder;
+    font-size: 24px;
+  }
+
+  .field {
+    width: 350px;
+    margin: auto;
+    padding-bottom: 18px;
+  }
+}

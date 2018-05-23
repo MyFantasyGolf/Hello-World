@@ -5,6 +5,7 @@ import inject from '../services/inject';
 import HomeView from './views/home/HomeView';
 import MyLeagueView from './views/MyLeague/MyLeagueView';
 import AdminView from './views/AdminView';
+import CreateLeague from './views/home/CreateLeague';
 
 import Icon from '@material-ui/core/Icon';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
@@ -51,6 +52,7 @@ class MainPage extends React.Component {
             }}
             />
             <Route path="/mfg/admin" component={AdminView} />
+            <Route path="/mfg/league_creation" component={CreateLeague} />
             <Redirect to="/mfg/home" />
           </Switch>
         </div>

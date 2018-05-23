@@ -15,6 +15,29 @@ class AuthService {
     return instance;
   }
 
+  async getUsers() {
+
+    try {
+      const response = await fetch('/api/users', {
+        method: 'GET',
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        }),
+        credentials: 'same-origin'
+      });
+
+      if (response.ok !== true) {
+        return { error: `${response.status} - ${response.message}` };
+      }
+
+      const users = await response.json();
+      return { users };
+    }
+    catch( err ) {
+      return { error: err };
+    }
+  }
+
   @action
   async getCurrentUser() {
     if (!isNil(this.me)) {

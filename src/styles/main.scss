@@ -23,6 +23,10 @@ a {
   width: 100%;
 }
 
+.page {
+  margin: 24px;
+}
+
 .fancy-font {
   font-family: $golf_font;
 }
@@ -57,3 +61,6 @@ p {
 @import './pages/views/rosters';
 @import './pages/views/home_view';
 @import './pages/views/draft_setup';
+@import './pages/views/create_league';
+
+@import './widgets/suggest_box';

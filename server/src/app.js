@@ -66,6 +66,7 @@ app.post('/api/register', user_service.registerUser);
 app.post('/api/login', user_service.login);
 app.post('/api/logout', user_service.logout);
 app.get('/api/currentUser', user_service.getUser);
+app.get('/api/users', user_service.getUsers);
 
 // players
 app.get('/api/golfers/:season', pga_service.getGolfers);
