@@ -107,7 +107,7 @@ RegistrationForm.defaultProps = {
   password: '',
   name: '',
   passwordConfrim: '',
-  error: null
+  error: ''
 };
 
 export default withRouter(RegistrationForm);

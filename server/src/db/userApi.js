@@ -4,6 +4,19 @@ const bcrypt = require('bcrypt');
 
 const isNil = require('lodash/isNil');
 
+const getUser = async (email) => {
+  const db = await conn.db;
+  const coll = db.collection('users');
+
+  try {
+    const user = await coll.findOne({'email': email});
+    return user;
+  }
+  catch(err) {
+    console.log("No user");
+  }
+};
+
 const registerUser = async (user, registered = true) => {
   const db = await conn.db;
   const coll = db.collection('users');
@@ -20,24 +33,23 @@ const registerUser = async (user, registered = true) => {
       user.password = await bcrypt.hash(user.password, 10);
     }
 
-    await coll.ensureIndex('email', { unique: true });
-    await coll.insertOne({ ...user });
+    const existingUser = await getUser(user.email);
+
+    if (isNil(existingUser)) {
+      await coll.ensureIndex('email', { unique: true });
+      await coll.insertOne({ ...user });
+    }
+    else {
+      await coll.findOneAndUpdate({ email: user.email },
+        {$set: {
+          'state': user.state,
+          'password': user.password,
+          'name': user.name
+        }});
+    }
   }
   catch(err) {
     console.log("User already exists");
-  }
-};
-
-const getUser = async (email) => {
-  const db = await conn.db;
-  const coll = db.collection('users');
-
-  try {
-    const user = await coll.findOne({email: email});
-    return user;
-  }
-  catch(err) {
-    console.log("No user");
   }
 };
 

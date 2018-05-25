@@ -47,6 +47,82 @@ const getLeaguesForUser = async (userId) => {
   }
 };
 
+const getLeagueInvitations = async (userId) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  try {
+    const leagues = await coll.find({ invitations:
+      {
+        $elemMatch: {
+          id: userId
+        }
+      }
+    }, {
+      fields: {name: 1, commissioner: 1, _id: 1}
+    }).toArray();
+
+    return leagues;
+  }
+  catch(err) {
+    console.log(`Error saving league: ${err}`);
+  }
+};
+
+const acceptInvitation = async (userId, leagueId, teamName) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  const invitations = await coll.findOne({
+    '_id': ObjectId(leagueId)
+  }, {
+    fields: {invitations: 1, teams: 1}
+  });
+
+  const newInvitations = invitations.invitations.filter( (invite) => {
+    return invite.id !== userId;
+  });
+
+  invitations.teams.push({
+    name: teamName,
+    user: userId,
+    draftList: [],
+    currentRoster: []
+  });
+
+  await coll.findOneAndUpdate({
+    '_id': ObjectId(leagueId)
+  }, {
+    $set: {
+      invitations: newInvitations,
+      teams: invitations.teams
+    }
+  });
+};
+
+const declineInvitation = async (userId, leagueId) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  const invitations = await coll.findOne({
+    '_id': ObjectId(leagueId)
+  }, {
+    fields: {invitations: 1}
+  });
+
+  const newInvitations = invitations.invitations.filter( (invite) => {
+    return invite.id !== userId;
+  });
+
+  await coll.findOneAndUpdate({
+    '_id': ObjectId(leagueId)
+  }, {
+    $set: {
+      invitations: newInvitations
+    }
+  });
+};
+
 const getLeague = async( leagueId ) => {
   const db = await conn.db;
   const coll = db.collection('leagues');
@@ -79,6 +155,7 @@ const createLeague = async (league) => {
     });
 
     unregisteredUsers.forEach( (user) => {
+      user.email = user.email.trim();
       userApi.registerUser(user, false);
     });
   }
@@ -116,6 +193,10 @@ const getAvailablePlayers = async (leagueId) => {
     const signedPlayers = [];
 
     league.teams.forEach( (team) => {
+      if (isNil(team.currentRoster)) {
+        return;
+      }
+
       team.currentRoster.forEach( (player) => {
         signedPlayers.push(player);
       });
@@ -142,5 +223,8 @@ module.exports = {
   saveLeague,
   getLeaguesForUser,
   getAvailablePlayers,
-  getLeague
+  getLeague,
+  getLeagueInvitations,
+  acceptInvitation,
+  declineInvitation
 };

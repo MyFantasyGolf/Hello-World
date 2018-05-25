@@ -43,6 +43,11 @@
         width: auto;
       }
     }
+
+    .no-leagues {
+      margin: 20px;
+      font-size: 18px;
+    }
   }
 }
 
@@ -57,8 +62,18 @@
   background-color: #efefef;
   border-bottom: 1px solid #cccccc;
 
+  .subtext {
+    font-size: 16px;
+    color: $alt;
+    font-style: italic;
+  }
+
   &:hover {
     background: $alt;
     color: white;
+
+    .subtext {
+      color: white;
+    }
   }
 }

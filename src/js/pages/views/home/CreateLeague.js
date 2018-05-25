@@ -106,15 +106,20 @@ class CreateLeague extends React.Component {
 
     const leagueObj = {
       name: this.state.leagueName,
-      commissioner: this.props.AuthService.me._id,
+      commissioner: {
+        id: this.props.AuthService.me._id,
+        name: this.props.AuthService.me.name
+      },
       activeGolfers: this.state.activeGolfers,
       invitations: this.state.selections.map( (sel) => {
-        return { email: sel.label, id: sel.value };
+        return { email: sel.label.trim(), id: sel.value.trim() };
       }),
       teams: [
         {
           user: this.props.AuthService.me._id,
-          name: this.state.teamName
+          name: this.state.teamName,
+          currentRoster: [],
+          draftList: []
         }
       ]
     };
