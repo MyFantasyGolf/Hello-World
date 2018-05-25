@@ -31,6 +31,7 @@ class MainPage extends React.Component {
   async componentDidMount() {
     const leagueService = this.props.LeagueService;
     await leagueService.loadMyLeagues();
+    await leagueService.loadMyInvites();
     leagueService.selectLeague( leagueService.myLeagues[0] );
   }
 

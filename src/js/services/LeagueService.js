@@ -10,6 +10,7 @@ class LeagueService {
   @observable myLeagues = [];
   @observable selectedLeague = {};
   @observable myroster = [];
+  @observable myInvites = [];
 
   constructor() {
     if (isNil(instance)) {
@@ -20,11 +21,7 @@ class LeagueService {
   }
 
   isCommisioner(userId) {
-    const user = this.selectedLeague.manager.find( (manager) => {
-      return manager === userId;
-    });
-
-    return !isNil(user);
+    return this.selectedLeague.commissioner.id === userId;
   }
 
   async createLeague(league) {
@@ -57,6 +54,32 @@ class LeagueService {
   async loadMyLeagues() {
     const leagues = await mfgFetch('/api/myleagues', { method: 'GET' });
     this.myLeagues = leagues.leagues;
+  }
+
+  @action
+  async loadMyInvites() {
+    const invites = await mfgFetch('/api/invites', {method: 'GET'});
+    this.myInvites = invites.leagues;
+  }
+
+  @action
+  async acceptInvitation(invitation, teamName) {
+    await mfgFetch(`/api/invite/accept/${invitation._id}/${teamName}`,
+      {
+        method: 'PUT'
+      });
+
+    await this.loadMyInvites();
+  }
+
+  @action
+  async declineInvitation(invitation) {
+    await mfgFetch(`/api/invite/decline/${invitation._id}`,
+      {
+        method: 'DELETE'
+      });
+
+    await this.loadMyInvites();
   }
 }
 

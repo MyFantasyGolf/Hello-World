@@ -11,6 +11,30 @@ const getMyLeagues = async (request, response) => {
   response.send({leagues: leagues});
 };
 
+const getMyInvitations = async (request, response) => {
+  const userId = request.session.userId;
+
+  const invites = await leagueApi.getLeagueInvitations(userId);
+  response.send({leagues: invites});
+};
+
+const acceptInvitation = async (request, response) => {
+  const userId = request.session.userId;
+  const leagueId = request.params.leagueId;
+  const teamName = request.params.teamName;
+
+  await leagueApi.acceptInvitation(userId, leagueId, teamName)
+  response.send({'status': 'success'});
+};
+
+const declineInvitation = async (request, response) => {
+  const userId = request.session.userId;
+  const leagueId = request.params.leagueId;
+
+  await leagueApi.declineInvitation(userId, leagueId)
+  response.send({'status': 'success'});
+};
+
 const getLeague = (request, response) => {
 
 };
@@ -20,7 +44,7 @@ const createLeague = async (request, response) => {
 
   if (isNil(league.name) ||
     isNil(league.commissioner)) {
-    response.status(500).send('A league name and owner are required.');
+    response.status(500).send('A league name and commissioner are required.');
     return;
   }
 
@@ -133,5 +157,8 @@ module.exports = {
   startDraft,
   getDraft,
   getDraftStatus,
-  makeDraftPick
+  makeDraftPick,
+  getMyInvitations,
+  acceptInvitation,
+  declineInvitation
 };

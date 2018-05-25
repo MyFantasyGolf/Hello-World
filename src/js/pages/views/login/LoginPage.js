@@ -9,7 +9,8 @@ import RegistrationForm from './RegistrationForm';
 
 import {
   Route,
-  Switch
+  Switch,
+  withRouter
 } from 'react-router-dom';
 
 @inject('AuthService')
@@ -20,7 +21,7 @@ class LoginPage extends React.Component {
     this.state = {
       email: '',
       password: '',
-      error: null,
+      error: '',
       name: '',
       passwordConfirm: ''
     };
@@ -47,7 +48,7 @@ class LoginPage extends React.Component {
 
     const error = await this.login();
 
-    if (!isNil(error)) {
+    if (!isNil(error) && !isNil(error.error)) {
       this.setState({
         ...this.state,
         error
@@ -79,10 +80,22 @@ class LoginPage extends React.Component {
 
     const error = await this.registerUser();
 
+    if (!isNil(error) && !isNil(error.error)) {
+      this.setState({
+        ...this.state,
+        error
+      });
+
+      return;
+    }
+
     this.setState({
       ...this.state,
-      error
+      email: '',
+      password: ''
     });
+
+    this.props.history.push('/login');
   }
 
   render() {
@@ -131,7 +144,8 @@ class LoginPage extends React.Component {
 }
 
 LoginPage.propTypes = {
-  AuthService: PropTypes.object
+  AuthService: PropTypes.object,
+  history: PropTypes.object
 };
 
-export default LoginPage;
+export default withRouter(LoginPage);

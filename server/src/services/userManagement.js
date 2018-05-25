@@ -9,7 +9,7 @@ const registerUser = async (request, response) => {
   if (
     isNil(user.email) ||
     isNil(user.password) ||
-    isNil(user.firstName)
+    isNil(user.name)
   ) {
     response.status(500).send('Insufficient information to register.');
     return;
@@ -36,6 +36,11 @@ const login = async (request, response) => {
 
   if (isNil(user)) {
     response.status(401).send('Login failed');
+    return;
+  }
+
+  if (user.state !== 'REGISTERED') {
+    response.status(401).send('User not registered');
     return;
   }
 

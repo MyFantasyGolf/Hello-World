@@ -21,24 +21,24 @@ class DraftSetup extends React.Component {
     };
   }
 
-  roundsChanged = ($e, newValue) => {
+  roundsChanged = ($e) => {
     this.setState({
       ...this.state,
-      numberOfRounds: newValue
+      numberOfRounds: $e.target.value
     });
   }
 
-  draftTypeChanged = ($e, draftType) => {
+  draftTypeChanged = ($e) => {
     this.setState({
       ...this.state,
-      draftType
+      draftType: $e.target.value
     });
   }
 
-  draftOrderTypeChanged = ($e, draftOrderType) => {
+  draftOrderTypeChanged = ($e) => {
     this.setState({
       ...this.state,
-      draftOrderType
+      draftOrderType: $e.target.value
     });
   }
 
