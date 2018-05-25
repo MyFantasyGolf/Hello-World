@@ -128,7 +128,15 @@ class DraftSetup extends React.Component {
     };
 
     if (draftOrderType !== 'random') {
-      draftOptions.draftOrder = draftOrder;
+      // eliminate unneeded fields in draft order
+      const simpleOrder = draftOrder.map( (team) => {
+        return {
+          user: team.user,
+          name: team.name
+        };
+      });
+
+      draftOptions.draftOrder = simpleOrder;
     }
 
     this.props.startDraft(draftOptions);
