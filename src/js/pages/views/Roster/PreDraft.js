@@ -99,6 +99,9 @@ class PreDraft extends React.Component {
   }
 
   showDraftOptions = () => {
+
+    this.props.refreshTeams();
+
     this.setState({
       ...this.state,
       showDraftOptions: true
@@ -181,6 +184,7 @@ PreDraft.propTypes = {
     PropTypes.array,
     PropTypes.object
   ]),
+  refreshTeams: PropTypes.func.isRequired,
   addPlayerToMyList: PropTypes.func,
   removePlayerFromMyList: PropTypes.func,
   movePlayerUp: PropTypes.func,

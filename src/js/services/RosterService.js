@@ -21,13 +21,15 @@ class RosterService {
     return instance;
   }
 
-  getRoster(leagueId, teamId) {
+  async getRoster(leagueId, teamId) {
     const leagueService = ServiceRegistry.getService('LeagueService');
 
     if (isNil(leagueService.selectedLeague) ||
       isNil(leagueService.selectedLeague.teams)) {
       return [];
     }
+
+    await leagueService.refreshSelectedLeague();
 
     return leagueService.selectedLeague.teams.find( (team) => {
       return team.user === teamId;
@@ -208,7 +210,9 @@ class RosterService {
         body: body
       });
 
-    this.getDraftStatus(leagueId);
+    await this.getDraftStatus(leagueId);
+    await this.getAvailablePlayers(leagueId, true);
+    await this.getMyDraftList(leagueId, true);
   }
 }
 

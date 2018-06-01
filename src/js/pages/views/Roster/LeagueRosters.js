@@ -18,12 +18,14 @@ class LeagueRosters extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      lastSelectedLeague: undefined
+      lastSelectedLeague: undefined,
+      team: {}
     };
   }
 
   getPredraft(availablePlayers, myDraftList) {
     return <PreDraft
+      refreshTeams={this.props.LeagueService.refreshSelectedLeague}
       availablePlayers={ availablePlayers }
       myDraftList={ myDraftList }
       addPlayerToMyList={this.addPlayerToMyList}
@@ -37,11 +39,25 @@ class LeagueRosters extends React.Component {
     />;
   }
 
+  loadMyTeam = async () => {
+    await this.props.LeagueService.refreshSelectedLeague();
+
+    const team = await this.props.RosterService.getRoster(
+      this.props.LeagueService.selectedLeague._id,
+      this.props.AuthService.me._id
+    );
+
+    this.setState({
+      ...this.state,
+      team: team
+    });
+  }
+
   getContent(
     availablePlayers = [],
     myDraftList = []) {
 
-    const { RosterService, LeagueService, AuthService } = this.props;
+    const { RosterService, LeagueService } = this.props;
     const { draftStatus } = RosterService;
 
     if (isNil(draftStatus) || isNil(draftStatus.draft)) {
@@ -52,23 +68,20 @@ class LeagueRosters extends React.Component {
       return this.getPredraft(availablePlayers, myDraftList);
     }
 
-    const myTeam = RosterService.getRoster(
-      LeagueService.selectedLeague._id,
-      AuthService.me._id
-    );
-
-
     if (draftStatus.draft.state === 'INPROGRESS') {
+
+      const roster = isNil(this.state.team.currentRoster) ?
+        [] : this.state.team.currentRoster.toJS();
 
       return <Draft
         leagueId={LeagueService.selectedLeague._id}
         teamName={LeagueService.getTeamNameFromIdForSelectedLeague}
-        roster={myTeam.currentRoster.toJS()}
+        roster={roster}
         me={this.props.AuthService.me._id}
       />;
     }
 
-    return <RosterView team={myTeam} />;
+    return <RosterView team={this.state.team} />;
   }
 
   addPlayerToMyList = (player) => {
@@ -99,7 +112,7 @@ class LeagueRosters extends React.Component {
       this.props.LeagueService.selectedLeague, draftOptions);
   }
 
-  async reinit() {
+  reinit = async () => {
     const ls = this.props.LeagueService;
     const rs = this.props.RosterService;
 
@@ -107,6 +120,7 @@ class LeagueRosters extends React.Component {
       return;
     }
 
+    await this.loadMyTeam();
     await rs.getAvailablePlayers(ls.selectedLeague, true);
     await rs.getDraftStatus(ls.selectedLeague);
 

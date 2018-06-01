@@ -35,8 +35,12 @@ const declineInvitation = async (request, response) => {
   response.send({'status': 'success'});
 };
 
-const getLeague = (request, response) => {
+const getLeague = async (request, response) => {
+  const leagueId = request.params.leagueId;
 
+  const league = await leagueApi.getLeague(leagueId);
+
+  response.send({league});
 };
 
 const createLeague = async (request, response) => {
@@ -144,7 +148,7 @@ const makeDraftPick = async (request, response) => {
     parseInt(round) - 1,
     parseInt(pick) - 1,
     selection);
-  response.send();
+  response.send({ 'status': 'success'});
 }
 
 module.exports = {

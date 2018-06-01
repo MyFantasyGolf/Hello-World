@@ -43,6 +43,14 @@ class LeagueService {
     }
   }
 
+  @action
+  async refreshSelectedLeague() {
+    const league = await mfgFetch(`/api/league/${this.selectedLeague._id}`,
+      { method: 'GET'});
+
+    this.selectedLeague = league.league;
+  }
+
   getTeamNameFromIdForSelectedLeague = (leagueId, teamId) => {
 
     return this.selectedLeague.teams.find( (team) => {
@@ -70,6 +78,7 @@ class LeagueService {
       });
 
     await this.loadMyInvites();
+    await this.loadMyLeagues();
   }
 
   @action
@@ -80,6 +89,7 @@ class LeagueService {
       });
 
     await this.loadMyInvites();
+    await this.loadMyLeagues();
   }
 }
 

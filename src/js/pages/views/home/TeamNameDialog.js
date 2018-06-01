@@ -25,7 +25,7 @@ const TeamNameDialog = ({
       <DialogTitle>Accept Invitation</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          `Please enter a team name to use in league ${invitation.name}`
+          {`Please enter a team name to use in league ${invitation.name}`}
         </DialogContentText>
         <TextField
           label="Team Name"

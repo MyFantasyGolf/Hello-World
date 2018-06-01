@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import isNil from 'lodash/isNil';
+
 import inject from '../../../services/inject';
 import {
   withRouter
@@ -68,7 +70,8 @@ class CreateLeague extends React.Component {
     return this.state.userList.map( (user) => {
       return {
         value: user._id,
-        label: `${user.name} (${user.email})`
+        label: `${user.name} (${user.email})`,
+        email: user.email
       };
     });
   }
@@ -112,7 +115,9 @@ class CreateLeague extends React.Component {
       },
       activeGolfers: this.state.activeGolfers,
       invitations: this.state.selections.map( (sel) => {
-        return { email: sel.label.trim(), id: sel.value.trim() };
+        const email = isNil(sel.email) ? sel.label.trim() : sel.email.trim();
+        const id = isNil(sel.value) ? undefined : sel.value.trim();
+        return { email, id };
       }),
       teams: [
         {

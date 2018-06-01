@@ -173,6 +173,7 @@ const draftStatus = async (leagueId, force = false) => {
   // draft is over
   if (roundIndex === -1) {
     draft.state = 'FINISHED';
+    draft.completed = moment().format('MM-DD-YYYY');
     draftCache.remove(leagueId);
     await updateDraft(leagueId, draft);
     return { draft: draft };

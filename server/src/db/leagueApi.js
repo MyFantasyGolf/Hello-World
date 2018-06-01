@@ -52,10 +52,11 @@ const getLeagueInvitations = async (userId) => {
   const coll = db.collection('leagues');
 
   try {
+    const user = await userApi.getUserById(userId);
     const leagues = await coll.find({ invitations:
       {
         $elemMatch: {
-          id: userId
+          email: user.email
         }
       }
     }, {
@@ -79,8 +80,10 @@ const acceptInvitation = async (userId, leagueId, teamName) => {
     fields: {invitations: 1, teams: 1}
   });
 
+  const user = await userApi.getUserById(userId);
+
   const newInvitations = invitations.invitations.filter( (invite) => {
-    return invite.id !== userId;
+    return invite.email !== user.email;
   });
 
   invitations.teams.push({

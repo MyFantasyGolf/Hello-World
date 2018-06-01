@@ -19,7 +19,7 @@ class Draft extends React.Component {
     };
   }
 
-  refreshView = () => {
+  refreshView = async () => {
     this.props.RosterService.getDraftStatus(this.props.leagueId);
     this.props.RosterService.getAvailablePlayers(this.props.leagueId);
     this.props.RosterService.getMyDraftList(this.props.leagueId);
@@ -39,18 +39,18 @@ class Draft extends React.Component {
     clearInterval(this.state.interval);
   }
 
-  choosePlayer = async (player) => {
+  choosePlayer = (player) => {
 
     const { draftStatus } = this.props.RosterService;
 
-    await this.props.RosterService.makePick(
+    this.props.RosterService.makePick(
       this.props.leagueId,
       draftStatus.round,
       draftStatus.pick,
       player
     );
 
-    this.refreshView();
+    // this.refreshView();
   }
 
   getAvailablePlayersView(availablePlayers) {
