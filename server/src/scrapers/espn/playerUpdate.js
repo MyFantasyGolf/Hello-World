@@ -12,7 +12,19 @@ const resultsApi = require('../../db/resultsApi');
 
 class EspnPlayerUpdater {
 
+  async shouldIUpdate() {
+    const year = season.getSeason(moment());
+    const lastUpdated = await resultsApi.lastPlayerUpdate(year);
+    return moment().diff(lastUpdated, 'hours') > 23;
+  }
+
   async updatePlayers(htmlFile = undefined) {
+    const shouldUpdate = await this.shouldIUpdate();
+
+    if (shouldUpdate === false) {
+      return;
+    }
+
     const year = season.getSeason(moment());
 
     const savedRoster = await resultsApi.getRoster(year);

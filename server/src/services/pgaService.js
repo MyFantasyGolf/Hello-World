@@ -13,6 +13,17 @@ const getGolfers = async (request, response) => {
   response.send(golfers);
 };
 
+const getSchedule = async (request, response) => {
+  const season = isNil(request.params.season) ?
+    season.getSeason(moment()) :
+    request.params.season;
+
+  const schedule = await resultsApi.getSchedules(season);
+
+  response.send(schedule);
+};
+
 module.exports = {
-  getGolfers
+  getGolfers,
+  getSchedule
 };

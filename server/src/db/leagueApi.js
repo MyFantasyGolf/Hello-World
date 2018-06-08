@@ -90,7 +90,8 @@ const acceptInvitation = async (userId, leagueId, teamName) => {
     name: teamName,
     user: userId,
     draftList: [],
-    currentRoster: []
+    currentRoster: [],
+    activeMap: {}
   });
 
   await coll.findOneAndUpdate({

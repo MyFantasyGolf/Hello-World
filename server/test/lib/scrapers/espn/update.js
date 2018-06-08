@@ -10,6 +10,7 @@ var cheerio = require('cheerio');
 var fs = require('fs');
 var path = require('path');
 var request = require('request');
+var asyncRequest = require('request-promise');
 var moment = require('moment');
 var sleep = require('sleep');
 var isNil = require('lodash/isNil');
@@ -25,19 +26,24 @@ var EspnUpdater = function () {
   _createClass(EspnUpdater, [{
     key: 'update',
     value: function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(htmlFile) {
-        var schedules;
+      var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var html, schedulez;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return this.updateSchedules(htmlFile);
+                return asyncRequest('http://www.espn.com/golf/schedule');
 
               case 2:
-                schedules = _context.sent;
+                html = _context.sent;
+                _context.next = 5;
+                return this.updateSchedules(html);
 
-              case 3:
+              case 5:
+                schedulez = _context.sent;
+
+              case 6:
               case 'end':
                 return _context.stop();
             }
@@ -45,7 +51,7 @@ var EspnUpdater = function () {
         }, _callee, this);
       }));
 
-      function update(_x) {
+      function update() {
         return _ref.apply(this, arguments);
       }
 
@@ -54,13 +60,13 @@ var EspnUpdater = function () {
   }, {
     key: 'updateSchedules',
     value: function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(htmlFile) {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(html) {
         var webSchedules, schedules, schedulesToFix;
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                webSchedules = this.getSchedule(htmlFile);
+                webSchedules = this.scrapeSchdule(html);
                 _context2.next = 3;
                 return resultsApi.getSchedules(webSchedules[0].year);
 
@@ -99,7 +105,7 @@ var EspnUpdater = function () {
         }, _callee2, this);
       }));
 
-      function updateSchedules(_x2) {
+      function updateSchedules(_x) {
         return _ref2.apply(this, arguments);
       }
 
@@ -114,52 +120,76 @@ var EspnUpdater = function () {
   }, {
     key: 'updateResults',
     value: function () {
-      var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(file) {
+      var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
         var _this = this;
 
-        var data, year, schedules;
+        var year, schedules;
         return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                data = void 0;
-
-
-                if (!isNil(file)) {
-                  data = fs.readFileSync(file).toString();
-                }
-
                 year = season.getSeason();
-                _context4.next = 5;
+                _context4.next = 3;
                 return resultsApi.getSchedules(year);
 
-              case 5:
+              case 3:
                 schedules = _context4.sent;
 
 
                 schedules.forEach(function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(schedule) {
-                    var results, sleeper;
+                    var html, results, sleeper;
                     return regeneratorRuntime.wrap(function _callee3$(_context3) {
                       while (1) {
                         switch (_context3.prev = _context3.next) {
                           case 0:
-                            if (isNil(data)) {
-                              _context3.next = 4;
+                            if (!(schedule.complete === true || isNil(schedule.espnUrl))) {
+                              _context3.next = 3;
                               break;
                             }
 
-                            results = _this.scrapeScheduleResults(data);
-                            _context3.next = 4;
+                            console.log('Skipping ' + schedule.title);
+                            return _context3.abrupt('return');
+
+                          case 3:
+
+                            console.log('Retrieving results for ' + schedule.title);
+
+                            _context3.next = 6;
+                            return asyncRequest('http://espn.com' + schedule.espnUrl);
+
+                          case 6:
+                            html = _context3.sent;
+
+                            if (isNil(html)) {
+                              _context3.next = 16;
+                              break;
+                            }
+
+                            results = _this.scrapeScheduleResults(html);
+                            _context3.next = 11;
                             return resultsApi.saveResults(schedule, results);
 
-                          case 4:
+                          case 11:
+                            if (!moment(schedule.date.end, 'MM/DD/YYYY').isBefore(moment())) {
+                              _context3.next = 16;
+                              break;
+                            }
+
+                            schedule.complete = true;
+                            _context3.next = 15;
+                            return resultsApi.saveTourSchedule(schedule);
+
+                          case 15:
+                            console.log(schedule.title + ' successfully saved.');
+
+                          case 16:
                             sleeper = parseInt(Math.random() * 3 + 1);
 
                             console.log('Sleeping for ' + sleeper + ' seconds.\n');
                             sleep.sleep(sleeper);
 
-                          case 7:
+                          case 19:
                           case 'end':
                             return _context3.stop();
                         }
@@ -167,12 +197,12 @@ var EspnUpdater = function () {
                     }, _callee3, _this);
                   }));
 
-                  return function (_x4) {
+                  return function (_x2) {
                     return _ref4.apply(this, arguments);
                   };
                 }());
 
-              case 7:
+              case 5:
               case 'end':
                 return _context4.stop();
             }
@@ -180,39 +210,16 @@ var EspnUpdater = function () {
         }, _callee4, this);
       }));
 
-      function updateResults(_x3) {
+      function updateResults() {
         return _ref3.apply(this, arguments);
       }
 
       return updateResults;
     }()
   }, {
-    key: 'getSchedule',
-    value: function getSchedule(htmlFile) {
-      var _this2 = this;
-
-      var html = void 0;
-
-      if (!isNil(htmlFile)) {
-        var data = fs.readFileSync(htmlFile).toString();
-        return this.scrapeSchdule(data);
-      } else {
-        request.get('http://www.espn.com/golf/schedule', function (err, response, body) {
-          return _this2.scrapeSchdule(body);
-        });
-      }
-    }
-  }, {
-    key: 'getScheduleResults',
-    value: function getScheduleResults(schedule) {
-      // request.get(schedule.espnUrl, (err, response, body) => {
-      //   return this.scrapeScheduleResults(body);
-      // });
-    }
-  }, {
     key: 'scrapeSchdule',
     value: function scrapeSchdule(html) {
-      var _this3 = this;
+      var _this2 = this;
 
       var $ = cheerio.load(html);
       var rows = $('tr');
@@ -264,7 +271,7 @@ var EspnUpdater = function () {
         return true;
       }).map(function (tourney) {
 
-        var date = _this3.sanitizeDate(seasonString, tourney[1]);
+        var date = _this2.sanitizeDate(seasonString, tourney[1]);
         var year = season.getSeason(moment(date.start, 'MM/DD/YYYY'));
 
         if (tourney.length === 10 || tourney.length === 11) {
@@ -345,14 +352,14 @@ var EspnUpdater = function () {
   }, {
     key: 'scrapeScheduleResults',
     value: function scrapeScheduleResults(resultsPage) {
-      var _this4 = this;
+      var _this3 = this;
 
       var $ = cheerio.load(resultsPage);
       var rows = $('.player-overview');
       var results = [];
 
       rows.each(function (index, row) {
-        results.push(_this4.parseResultRow($, row));
+        results.push(_this3.parseResultRow($, row));
       });
 
       return results;

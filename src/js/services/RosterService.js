@@ -12,6 +12,7 @@ class RosterService {
   @observable myDraftList = undefined;
   @observable draft = undefined;
   @observable draftStatus = undefined;
+  @observable activeRosterMap = undefined;
 
   constructor() {
     if (isNil(instance)) {
@@ -34,6 +35,19 @@ class RosterService {
     return leagueService.selectedLeague.teams.find( (team) => {
       return team.user === teamId;
     });
+  }
+
+  async getMyActiveRosterMap(leagueId, force = false) {
+
+    if (!isNil(this.activeRosterMap) && force !== true) {
+      return this.activeRosterMap;
+    }
+
+    const response = await mfgFetch(`/api/league/${leagueId}/myActiveRoster`,
+      { method: 'GET'});
+
+    this.activeRosterMap = response.map;
+    return this.activeRosterMap;
   }
 
   @action

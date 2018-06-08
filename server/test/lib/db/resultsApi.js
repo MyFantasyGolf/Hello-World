@@ -76,9 +76,9 @@ var getSchedules = function () {
   };
 }();
 
-var saveResults = function () {
-  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(schedule, results) {
-    var db, coll;
+var getRoster = function () {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(season) {
+    var db, coll, results;
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
@@ -88,6 +88,73 @@ var saveResults = function () {
 
           case 2:
             db = _context3.sent;
+            coll = db.collection('players');
+            _context3.next = 6;
+            return coll.find({ year: parseInt(season) }).toArray();
+
+          case 6:
+            results = _context3.sent;
+            return _context3.abrupt('return', results[0].players);
+
+          case 8:
+          case 'end':
+            return _context3.stop();
+        }
+      }
+    }, _callee3, undefined);
+  }));
+
+  return function getRoster(_x3) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+var saveRoster = function () {
+  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(season, roster) {
+    var db, coll;
+    return regeneratorRuntime.wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
+          case 0:
+            _context4.next = 2;
+            return conn.db;
+
+          case 2:
+            db = _context4.sent;
+            coll = db.collection('players');
+
+
+            try {
+              coll.findOneAndUpdate({ year: season }, { ...roster, year: season }, { upsert: true });
+            } catch (err) {
+              console.log(err.stack);
+            }
+
+          case 5:
+          case 'end':
+            return _context4.stop();
+        }
+      }
+    }, _callee4, undefined);
+  }));
+
+  return function saveRoster(_x4, _x5) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+
+var saveResults = function () {
+  var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(schedule, results) {
+    var db, coll;
+    return regeneratorRuntime.wrap(function _callee5$(_context5) {
+      while (1) {
+        switch (_context5.prev = _context5.next) {
+          case 0:
+            _context5.next = 2;
+            return conn.db;
+
+          case 2:
+            db = _context5.sent;
             coll = db.collection('schedules');
 
 
@@ -102,20 +169,22 @@ var saveResults = function () {
 
           case 5:
           case 'end':
-            return _context3.stop();
+            return _context5.stop();
         }
       }
-    }, _callee3, undefined);
+    }, _callee5, undefined);
   }));
 
-  return function saveResults(_x3, _x4) {
-    return _ref3.apply(this, arguments);
+  return function saveResults(_x6, _x7) {
+    return _ref5.apply(this, arguments);
   };
 }();
 
 module.exports = {
   saveTourSchedule: saveTourSchedule,
   getSchedules: getSchedules,
-  saveResults: saveResults
+  saveResults: saveResults,
+  getRoster: getRoster,
+  saveRoster: saveRoster
 };
 //# sourceMappingURL=resultsApi.js.map

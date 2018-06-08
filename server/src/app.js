@@ -9,9 +9,13 @@ const session = require('express-session');
 const isNil = require('lodash/isNil');
 const user_service = require('./services/userManagement');
 const league_service = require('./services/leagueManagement');
+const roster_service = require('./services/rosterManagement');
 const pga_service = require('./services/pgaService');
 
+const leagueUpdater = require('./db/leagueUpdater');
+
 const app = express();
+let updating = false;
 
 app.use(session({
   secret: 'UniqueFantasyGolf',
@@ -24,6 +28,31 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // parse application/json
 app.use(bodyParser.json());
+
+app.use(async (request, response, next) => {
+  if (
+    !request.path.startsWith('/api') ||
+    isNil(request.session) ||
+    isNil(request.session.userId) ||
+    updating === true)
+  {
+    next();
+    return;
+  }
+
+  console.log('Updating...');
+  updating = true;
+  const update = new espn.EspnUpdater();
+  await update.update();
+  await update.updateResults();
+  const pup = new espnPlayers.EspnPlayerUpdater();
+  await pup.updatePlayers();
+  updating = false;
+
+  //leagueUpdater.update(request.session.userId);
+
+  next();
+});
 
 app.get('/update', async (request, response) => {
 
@@ -62,6 +91,8 @@ app.get('/api/updateRoster', async (request, response) => {
   response.send(players);
 });
 
+app.get('/api/schedule', pga_service.getSchedule);
+
 app.post('/api/register', user_service.registerUser);
 app.post('/api/login', user_service.login);
 app.post('/api/logout', user_service.logout);
@@ -76,6 +107,7 @@ app.get('/api/myleagues', league_service.getMyLeagues);
 
 app.get('/api/league/:leagueId', league_service.getLeague);
 app.post('/api/league', league_service.createLeague);
+app.get('/api/league/:leagueId/myActiveRoster', roster_service.getActiveRoster);
 
 app.get('/api/league/:leagueId/availablePlayers', league_service.getAvailablePlayers);
 app.get('/api/league/:leagueId/draftList', league_service.getDraftList);

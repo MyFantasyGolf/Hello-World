@@ -3,11 +3,14 @@
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 var conn = require('./connection');
+var ObjectId = require('mongodb').ObjectId;
 var bcrypt = require('bcrypt');
 
-var registerUser = function () {
-  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(user) {
-    var db, coll;
+var isNil = require('lodash/isNil');
+
+var getUser = function () {
+  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(email) {
+    var db, coll, user;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -20,43 +23,35 @@ var registerUser = function () {
             coll = db.collection('users');
             _context.prev = 4;
             _context.next = 7;
-            return bcrypt.hash(user.password, 10);
+            return coll.findOne({ 'email': email });
 
           case 7:
-            user.password = _context.sent;
-            _context.next = 10;
-            return coll.ensureIndex('email', { unique: true });
+            user = _context.sent;
+            return _context.abrupt('return', user);
 
-          case 10:
-            _context.next = 12;
-            return coll.insertOne({ ...user });
-
-          case 12:
-            _context.next = 17;
-            break;
-
-          case 14:
-            _context.prev = 14;
+          case 11:
+            _context.prev = 11;
             _context.t0 = _context['catch'](4);
 
-            console.log("User already exists");
+            console.log("No user");
 
-          case 17:
+          case 14:
           case 'end':
             return _context.stop();
         }
       }
-    }, _callee, undefined, [[4, 14]]);
+    }, _callee, undefined, [[4, 11]]);
   }));
 
-  return function registerUser(_x) {
+  return function getUser(_x) {
     return _ref.apply(this, arguments);
   };
 }();
 
-var getUser = function () {
-  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(email) {
-    var db, coll, user;
+var registerUser = function () {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(user) {
+    var registered = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+    var db, coll, existingUser;
     return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
@@ -68,34 +63,162 @@ var getUser = function () {
             db = _context2.sent;
             coll = db.collection('users');
             _context2.prev = 4;
-            _context2.next = 7;
-            return coll.findOne({ email: email });
+
+            if (registered === true) {
+              user.state = 'REGISTERED';
+            } else {
+              user.state = 'UNREGISTERED';
+            }
+
+            if (isNil(user.password)) {
+              _context2.next = 10;
+              break;
+            }
+
+            _context2.next = 9;
+            return bcrypt.hash(user.password, 10);
+
+          case 9:
+            user.password = _context2.sent;
+
+          case 10:
+            _context2.next = 12;
+            return getUser(user.email);
+
+          case 12:
+            existingUser = _context2.sent;
+
+            if (!isNil(existingUser)) {
+              _context2.next = 20;
+              break;
+            }
+
+            _context2.next = 16;
+            return coll.ensureIndex('email', { unique: true });
+
+          case 16:
+            _context2.next = 18;
+            return coll.insertOne({ ...user });
+
+          case 18:
+            _context2.next = 22;
+            break;
+
+          case 20:
+            _context2.next = 22;
+            return coll.findOneAndUpdate({ email: user.email }, { $set: {
+                'state': user.state,
+                'password': user.password,
+                'name': user.name
+              } });
+
+          case 22:
+            _context2.next = 27;
+            break;
+
+          case 24:
+            _context2.prev = 24;
+            _context2.t0 = _context2['catch'](4);
+
+            console.log("User already exists");
+
+          case 27:
+          case 'end':
+            return _context2.stop();
+        }
+      }
+    }, _callee2, undefined, [[4, 24]]);
+  }));
+
+  return function registerUser(_x3) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+
+var getUserById = function () {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(id) {
+    var db, coll, user;
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            _context3.next = 2;
+            return conn.db;
+
+          case 2:
+            db = _context3.sent;
+            coll = db.collection('users');
+            _context3.prev = 4;
+            _context3.next = 7;
+            return coll.findOne({ _id: ObjectId(id) });
 
           case 7:
-            user = _context2.sent;
-            return _context2.abrupt('return', user);
+            user = _context3.sent;
+            return _context3.abrupt('return', user);
 
           case 11:
-            _context2.prev = 11;
-            _context2.t0 = _context2['catch'](4);
+            _context3.prev = 11;
+            _context3.t0 = _context3['catch'](4);
 
             console.log("No user");
 
           case 14:
           case 'end':
-            return _context2.stop();
+            return _context3.stop();
         }
       }
-    }, _callee2, undefined, [[4, 11]]);
+    }, _callee3, undefined, [[4, 11]]);
   }));
 
-  return function getUser(_x2) {
-    return _ref2.apply(this, arguments);
+  return function getUserById(_x4) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+var getUsers = function () {
+  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+    var db, coll, users;
+    return regeneratorRuntime.wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
+          case 0:
+            _context4.next = 2;
+            return conn.db;
+
+          case 2:
+            db = _context4.sent;
+            coll = db.collection('users');
+            _context4.prev = 4;
+            _context4.next = 7;
+            return coll.find({}).toArray();
+
+          case 7:
+            users = _context4.sent;
+            return _context4.abrupt('return', users);
+
+          case 11:
+            _context4.prev = 11;
+            _context4.t0 = _context4['catch'](4);
+
+            console.log("No users");
+
+          case 14:
+          case 'end':
+            return _context4.stop();
+        }
+      }
+    }, _callee4, undefined, [[4, 11]]);
+  }));
+
+  return function getUsers() {
+    return _ref4.apply(this, arguments);
   };
 }();
 
 module.exports = {
   registerUser: registerUser,
-  getUser: getUser
+  getUser: getUser,
+  getUserById: getUserById,
+  getUsers: getUsers
 };
 //# sourceMappingURL=userApi.js.map

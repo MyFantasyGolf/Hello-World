@@ -12,7 +12,20 @@ const resultsApi = require('../../db/resultsApi');
 
 class EspnUpdater {
 
+  async shouldIUpdate() {
+    const year = season.getSeason(moment());
+    const lastUpdated = await resultsApi.lastScheduleUpdate(year);
+    return moment().diff(lastUpdated, 'hours') > 23;
+  }
+
   async update() {
+
+    const shouldUpdate = await this.shouldIUpdate();
+
+    if ( shouldUpdate === false) {
+      return;
+    }
+
     const html = await asyncRequest('http://www.espn.com/golf/schedule');
     const schedulez = await this.updateSchedules(html);
   }
@@ -43,6 +56,8 @@ class EspnUpdater {
       resultsApi.saveTourSchedule(schedule)
     });
 
+    await resultsApi.schedulesUpdated(season.getSeason(moment()));
+
     return schedulesToFix;
   }
 
@@ -51,6 +66,10 @@ class EspnUpdater {
   tournaments that have them.
   **/
   async updateResults() {
+
+    if (this.shouldIUpdate() === false) {
+      return;
+    }
 
     const year = season.getSeason();
 
@@ -69,12 +88,6 @@ class EspnUpdater {
       if (!isNil(html)) {
         const results = this.scrapeScheduleResults(html);
         await resultsApi.saveResults(schedule, results);
-
-        if (moment(schedule.date.end, 'MM/DD/YYYY').isBefore(moment())) {
-          schedule.complete = true;
-          await resultsApi.saveTourSchedule(schedule);
-          console.log(`${schedule.title} successfully saved.`);
-        }
       }
 
       const sleeper = parseInt((Math.random() * 3) + 1);
