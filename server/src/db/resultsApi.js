@@ -41,7 +41,8 @@ const schedulesUpdated = async (season) => {
   coll.findOneAndUpdate({
     year: season
   }, {
-    updated: moment().format('MM-DD-YYYY HH:mm')
+    updated: moment().format('MM-DD-YYYY HH:mm'),
+    year: season
   },
   { upsert: true });
 
@@ -80,7 +81,7 @@ const getRoster = async (season) => {
   const coll = db.collection('players');
   const results = await coll.find({year: parseInt(season)}).toArray();
 
-  return results[0].players;
+  return isNil(results[0]) ? [] : results[0].players;
 };
 
 const saveRoster = async (season, roster) => {

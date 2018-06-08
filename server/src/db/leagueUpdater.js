@@ -3,7 +3,8 @@ const moment = require('moment');
 const isNil = require('lodash/isNil');
 const season = require('../utils/season');
 const leagueApi = require('./leagueApi');
-const resultApi = require('./resultsApi');
+const resultsApi = require('./resultsApi');
+const ObjectId = require('mongodb').ObjectId;
 
 const getLeaguesToUpdate = async (userId) => {
   const userLeagues = await leagueApi.getLeaguesForUser(userId);
@@ -12,17 +13,16 @@ const getLeaguesToUpdate = async (userId) => {
       moment('12-01-1970', 'MM-DD-YYYY') :
       moment(league.updated, 'MM-DD-YYYY');
 
-    return moment().diff(lastUpdated, 'hours') > 23;
+    return moment().diff(lastUpdate, 'hours') > 23;
   });
 
   return leaguesToUpdate;
 };
 
-const getSchedulesThatApply = async (leagueStarted) => {
-  const schedules = await resultsApi.getSchedule(season.getSeason(moment()));
+const getSchedulesThatApply = (leagueStarted, schedules) => {
 
   const schedulesThatApply = schedules.filter( (schedule) => {
-    const scheduleEnd = moment(schedule.dates.end, 'MM/DD/YYYY');
+    const scheduleEnd = moment(schedule.date.end, 'MM/DD/YYYY');
 
     return scheduleEnd.isAfter(leagueStarted) &&
       !isNil(schedule.results);
@@ -37,7 +37,7 @@ const updateTeam = async (team, league, schedules) => {
   schedules.forEach( (schedule) => {
     let activeRoster = team.activeMap[schedule.key];
 
-    if (isNil(activeRoster) {
+    if (isNil(activeRoster)) {
       if (!isNil(lastRoster)) {
         activeRoster = lastRoster;
       }
@@ -54,42 +54,62 @@ const updateTeam = async (team, league, schedules) => {
     activeRoster.forEach( (golfer) => {
       golfer.score = schedule.results[golfer.key].relativeScore;
     });
+
+    team.activeMap[schedule.key] = activeRoster;
   });
+
+  return team;
 };
 
 const updateLeague = async (league, schedules) => {
-  league.teams.forEach( (team) => {
-    await updateTeam(team, league,schedules);
+  league.teams.forEach( async (team, index) => {
+    const newTeam = await updateTeam(team, league,schedules);
+    league.teams[index] = newTeam;
   });
+
+  return league;
 };
 
 const update = async (userId) => {
   const db = await conn.db;
   const coll = db.collection('leagues');
 
-  const leaguesToUpdate = getLeaguesToUpdate(userId);
+  const leaguesToUpdate = await getLeaguesToUpdate(userId);
+  const schedules = await resultsApi.getSchedules(season.getSeason(moment()));
 
-  const leagueStarted = isNil(league.draft) ||
-    isNil(league.draft.completed) ?
-    moment() : moment(league.draft.completed, 'MM-DD-YYYY');
+  leaguesToUpdate.forEach( async (league) => {
 
-  const schedulesThatApply = getSchedulesThatApply(leagueStarted);
-  schedulesThatApply.sort( (s1, s2) => {
-    const s1Start = moment(s1.date.end, 'MM/DD/YYYY');
-    const s2Start = moment(s1.data.end, 'MM/DD/YYYY');
+    const leagueStarted = isNil(league.draft) ||
+      isNil(league.draft.completed) ?
+      moment() : moment(league.draft.completed, 'MM-DD-YYYY');
 
-    if (s1Start.isBefore(s2Start)) {
-      return 1;
-    }
-    else if (s2Start.isBefore(s1Start)) {
-      return -1;
-    }
+    const schedulesThatApply =
+      getSchedulesThatApply(leagueStarted, schedules);
 
-    return 0;
-  });
+    schedulesThatApply.sort( (s1, s2) => {
+      const s1Start = moment(s1.date.end, 'MM/DD/YYYY');
+      const s2Start = moment(s1.date.end, 'MM/DD/YYYY');
 
-  leaguesToUpdate.forEach( (league) => {
-    await updateLeague(league, schedulesThatApply);
+      if (s1Start.isBefore(s2Start)) {
+        return 1;
+      }
+      else if (s2Start.isBefore(s1Start)) {
+        return -1;
+      }
+
+      return 0;
+    });
+
+    console.log(`Updating league ${league.name}`)
+    const newLeague = await updateLeague(league, schedulesThatApply);
+
+    await coll.findOneAndUpdate({
+      '_id': ObjectId(league._id)
+    }, {
+      $set: {'teams': newLeague.teams, updated: moment().format('MM-DD-YYYY')}
+    });
+
+    console.log(`finished updating league. ${league.name}`);
   });
 };
 

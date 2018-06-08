@@ -67,7 +67,9 @@ class EspnUpdater {
   **/
   async updateResults() {
 
-    if (this.shouldIUpdate() === false) {
+    const shouldIUpdate = await this.shouldIUpdate();
+
+    if (shouldIUpdate === false) {
       return;
     }
 
