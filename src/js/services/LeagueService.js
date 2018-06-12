@@ -91,6 +91,14 @@ class LeagueService {
     await this.loadMyInvites();
     await this.loadMyLeagues();
   }
+
+  async getSchedulesForSelectedLeague() {
+    const schedules =
+      await mfgFetch(`/api/league/${this.selectedLeague._id}/schedules`,
+        {method: 'GET'});
+
+    return schedules.schedules;
+  }
 }
 
 export default LeagueService;

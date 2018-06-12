@@ -58,7 +58,7 @@ const saveTourSchedule = async (schedule) => {
     coll.findOneAndUpdate(
       { year: schedule.year, title: schedule.title },
       { ...schedule,
-        key: schedule.title.toLowerCase().replace(/ /g, '')
+        key: schedule.title.toLowerCase().replace(/ /g, '').replace(/\./g, '_')
       },
       { upsert: true }
     );
@@ -68,12 +68,16 @@ const saveTourSchedule = async (schedule) => {
   }
 };
 
-const getSchedules = async (season) => {
+const getSchedules = async (season, truncate = false) => {
   const db = await conn.db;
   const coll = db.collection('schedules');
-  const results = await coll.find({year: season}).toArray();
+  if (truncate === false) {
+    return await coll.find({year: season}).toArray();
+  }
 
-  return results;
+  return await coll.find(
+    {year: season},
+    {results: 0}).toArray();
 };
 
 const getRoster = async (season) => {

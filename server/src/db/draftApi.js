@@ -158,7 +158,8 @@ const draftStatus = async (leagueId, force = false) => {
 
   const draft = await getDraft(leagueId);
 
-  if (isNil(draft) || draft.state === 'PREDRAFT') {
+  if (isNil(draft) || draft.state === 'PREDRAFT' ||
+    draft.state === 'FINISHED') {
     return { draft: draft };
   }
 

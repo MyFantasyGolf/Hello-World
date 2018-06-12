@@ -11,6 +11,13 @@ const getMyLeagues = async (request, response) => {
   response.send({leagues: leagues});
 };
 
+const getLeagueSchedules = async(request, response) => {
+  const leagueId = request.params.leagueId;
+
+  const schedules = await leagueApi.getLeagueSchedules(leagueId);
+  response.send({schedules});
+}
+
 const getMyInvitations = async (request, response) => {
   const userId = request.session.userId;
 
@@ -164,5 +171,6 @@ module.exports = {
   makeDraftPick,
   getMyInvitations,
   acceptInvitation,
-  declineInvitation
+  declineInvitation,
+  getLeagueSchedules
 };

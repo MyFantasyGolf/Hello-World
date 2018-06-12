@@ -56,8 +56,6 @@ class EspnUpdater {
       resultsApi.saveTourSchedule(schedule)
     });
 
-    await resultsApi.schedulesUpdated(season.getSeason(moment()));
-
     return schedulesToFix;
   }
 
@@ -77,7 +75,9 @@ class EspnUpdater {
 
     const schedules = await resultsApi.getSchedules(year);
 
-    schedules.forEach( async (schedule) => {
+    for (let i = 0; i < schedules.length; i++ ) {
+    // schedules.forEach( async (schedule) => {
+      const schedule = schedules[i];
 
       if (schedule.complete === true || isNil(schedule.espnUrl)) {
         console.log(`Skipping ${schedule.title}`);
@@ -95,7 +95,7 @@ class EspnUpdater {
       const sleeper = parseInt((Math.random() * 3) + 1);
       console.log(`Sleeping for ${sleeper} seconds.\n`);
       sleep.sleep(sleeper);
-    });
+    }
   }
 
   scrapeSchdule(html) {

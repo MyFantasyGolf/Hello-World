@@ -47,9 +47,13 @@ class LeagueRosters extends React.Component {
       this.props.AuthService.me._id
     );
 
+    const schedules =
+      await this.props.LeagueService.getSchedulesForSelectedLeague();
+
     this.setState({
       ...this.state,
-      team: team
+      team: team,
+      schedules
     });
   }
 
@@ -81,7 +85,8 @@ class LeagueRosters extends React.Component {
       />;
     }
 
-    return <RosterView team={this.state.team} />;
+    return <RosterView team={this.state.team}
+      schedules={this.state.schedules}/>;
   }
 
   addPlayerToMyList = (player) => {

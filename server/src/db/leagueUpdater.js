@@ -1,6 +1,7 @@
 const conn = require('./connection');
 const moment = require('moment');
 const isNil = require('lodash/isNil');
+const cloneDeep = require('lodash/cloneDeep');
 const season = require('../utils/season');
 const leagueApi = require('./leagueApi');
 const resultsApi = require('./resultsApi');
@@ -52,10 +53,14 @@ const updateTeam = async (team, league, schedules) => {
     lastRoster = activeRoster;
 
     activeRoster.forEach( (golfer) => {
-      golfer.score = schedule.results[golfer.key].relativeScore;
+      const golfer_results = schedule.results[golfer.key];
+
+      golfer.score = isNil(golfer_results) ||
+        isNil(golfer_results.relativeScore) ?
+          null : schedule.results[golfer.key].relativeScore;
     });
 
-    team.activeMap[schedule.key] = activeRoster;
+    team.activeMap[schedule.key] = cloneDeep(activeRoster);
   });
 
   return team;
@@ -77,7 +82,9 @@ const update = async (userId) => {
   const leaguesToUpdate = await getLeaguesToUpdate(userId);
   const schedules = await resultsApi.getSchedules(season.getSeason(moment()));
 
-  leaguesToUpdate.forEach( async (league) => {
+  leaguesToUpdate.forEach( async (empty_league) => {
+
+    const league = await leagueApi.getLeague(empty_league._id);
 
     const leagueStarted = isNil(league.draft) ||
       isNil(league.draft.completed) ?
