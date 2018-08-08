@@ -75,9 +75,22 @@ const getSchedules = async (season, truncate = false) => {
     return await coll.find({year: season}).toArray();
   }
 
-  return await coll.find(
+  const scheduleList = await coll.find(
     {year: season},
     {results: 0}).toArray();
+
+  scheduleList.sort( (a, b) => {
+    const aEnd = moment(a.date.end, 'MM/DD/YYYY');
+    const bEnd = moment(b.date.end, 'MM/DD/YYYY');
+
+    if (aEnd.isBefore(bEnd)) {
+      return 1;
+    }
+
+    return -1;
+  });
+
+  return scheduleList;
 };
 
 const getRoster = async (season) => {

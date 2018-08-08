@@ -36,6 +36,11 @@ const updateTeam = async (team, league, schedules) => {
   let lastRoster = null;
 
   schedules.forEach( (schedule) => {
+
+    if (isNil(team.activeMap)) {
+      team.activeMap = {};
+    }
+
     let activeRoster = team.activeMap[schedule.key];
 
     if (isNil(activeRoster)) {

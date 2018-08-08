@@ -46,7 +46,6 @@ class LeagueRosters extends React.Component {
       this.props.LeagueService.selectedLeague._id,
       this.props.AuthService.me._id
     );
-
     const schedules =
       await this.props.LeagueService.getSchedulesForSelectedLeague();
 
@@ -85,8 +84,68 @@ class LeagueRosters extends React.Component {
       />;
     }
 
-    return <RosterView team={this.state.team}
-      schedules={this.state.schedules}/>;
+    return (
+      <RosterView
+        team={this.state.team}
+        schedules={this.state.schedules}
+        activeChange={this.activeChange}
+      />);
+  }
+
+  activeChange = async (golfer, schedule) => {
+    const { LeagueService, RosterService } = this.props;
+
+    const map = await RosterService.getMyActiveRosterMap(
+      LeagueService.selectedLeague._id
+    );
+
+    const { activeGolfers } = LeagueService.selectedLeague;
+
+    const currentActiveGolfers = await map[schedule].length;
+
+    if (
+      golfer.active === true ||
+      isNil(map) ||
+      isNil(map[schedule]) ||
+      currentActiveGolfers < parseInt(activeGolfers)
+    ) {
+
+      const newMap = isNil(map) ? {} : map;
+
+      if (isNil(newMap[schedule])) {
+        newMap[schedule] = [];
+      }
+
+      const newActiveList = newMap[schedule];
+
+      const changedList = (golfer.active) ?
+        newActiveList.filter( (g) => {
+          return g.key !== golfer.key;
+        }) :
+        newActiveList;
+
+      if (!golfer.active) {
+        newActiveList.push({
+          key: golfer.key,
+          score: null
+        });
+      }
+
+      newMap[schedule] = changedList;
+
+      await RosterService.setActiveRoster(
+        LeagueService.selectedLeague._id,
+        newMap,
+        this.state.team.user
+      );
+
+      await this.loadMyTeam();
+
+      return;
+    }
+
+    alert(`You cannot have more than ${activeGolfers} active golfers.` +
+      ' De-activate someone else first.');
   }
 
   addPlayerToMyList = (player) => {

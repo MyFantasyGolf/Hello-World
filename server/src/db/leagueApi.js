@@ -153,8 +153,7 @@ const getLeagueSchedules = async (leagueId) => {
     const results = schedules.filter( (schedule) => {
       const scheduleEnd = moment(schedule.date.end, 'MM/DD/YYYY');
 
-      return scheduleEnd.isAfter(leagueStarted) &&
-        !isNil(schedule.results);
+      return scheduleEnd.isAfter(leagueStarted);
     })
 
     return results;

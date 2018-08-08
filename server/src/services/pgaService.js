@@ -1,5 +1,6 @@
 const isNil = require('lodash/isNil');
 const resultsApi = require('../db/resultsApi');
+const rosterApi = require('../db/rosterApi');
 const season = require('../utils/season');
 const moment = require('moment');
 
@@ -11,6 +12,13 @@ const getGolfers = async (request, response) => {
   const golfers = await resultsApi.getRoster(season);
 
   response.send(golfers);
+};
+
+const getGolfer = async (request, response) => {
+  const playerId = request.params.key;
+  const golfer = await rosterApi.getGolfer(playerId);
+
+  response.send(golfer);
 };
 
 const getSchedule = async (request, response) => {
@@ -25,5 +33,6 @@ const getSchedule = async (request, response) => {
 
 module.exports = {
   getGolfers,
+  getGolfer,
   getSchedule
 };

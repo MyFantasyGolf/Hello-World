@@ -81,7 +81,7 @@ class EspnUpdater {
 
       if (schedule.complete === true || isNil(schedule.espnUrl)) {
         console.log(`Skipping ${schedule.title}`);
-        return;
+        continue;
       }
 
       console.log(`Retrieving results for ${schedule.title}`);
@@ -102,7 +102,7 @@ class EspnUpdater {
     const $ = cheerio.load(html);
     const rows = $('tr');
 
-    const seasonString = $($('select option')[1]).text();
+    const seasonString = $($('select option')[2]).text();
 
     const entries = [];
 

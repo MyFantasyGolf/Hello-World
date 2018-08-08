@@ -33,9 +33,9 @@ class EspnPlayerUpdater {
       return;
     }
 
-    const html = await isNil(htmlFile) ?
-      this.downloadPlayerList() :
-      fs.readFileSync(htmlFile);
+    const html = isNil(htmlFile) ?
+      await this.downloadPlayerList() :
+      await fs.readFileSync(htmlFile);
 
     const roster = this.parseHtml(html);
     roster.year = year;

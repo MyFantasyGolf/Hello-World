@@ -5,9 +5,12 @@ import LeagueService from './services/LeagueService';
 import RosterService from './services/RosterService';
 import StatService from './services/StatService';
 
+import RosterTableService from './services/state/RosterTableService';
+
 ServiceRegistry.register(
   AuthService,
   LeagueService,
   RosterService,
-  StatService
+  StatService,
+  RosterTableService
 );

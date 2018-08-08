@@ -107,12 +107,14 @@ app.get('/api/users', user_service.getUsers);
 
 // players
 app.get('/api/golfers/:season', pga_service.getGolfers);
+app.get('/api/golfer/:key', pga_service.getGolfer);
 
 // leagues
 app.get('/api/myleagues', league_service.getMyLeagues);
 
 app.get('/api/league/:leagueId', league_service.getLeague);
 app.post('/api/league', league_service.createLeague);
+app.put('/api/league/:leagueId/setActiveRoster', roster_service.setActiveRoster);
 app.get('/api/league/:leagueId/myActiveRoster', roster_service.getActiveRoster);
 app.get('/api/league/:leagueId/schedules', league_service.getLeagueSchedules);
 

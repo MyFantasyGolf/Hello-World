@@ -6,9 +6,10 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
+import RosterTable from './RosterTable';
 import PlayerRow from './PlayerRow';
-import ReactTable from 'react-table';
-import 'react-table/react-table.css';
+
+import moment from 'moment';
 
 class RosterView extends React.Component {
 
@@ -18,6 +19,18 @@ class RosterView extends React.Component {
     this.state = {
       schedule: undefined
     };
+  }
+
+  componentDidMount() {
+
+    if (isNil(this.props.schedules) || this.props.schedules.length < 1) {
+      return;
+    }
+
+    this.setState({
+      ...this.state,
+      schedule: this.props.schedules[0].key
+    });
   }
 
   getRosterListView = (myRoster) => {
@@ -37,21 +50,8 @@ class RosterView extends React.Component {
       });
   }
 
-  getColumns = () => {
-    return [
-      {
-        Header: 'Active',
-        accessor: 'active'
-      },
-      {
-        Header: 'Name',
-        accessor: 'name'
-      },
-      {
-        Header: 'Total Score',
-        accessor: 'total_score'
-      }
-    ];
+  getSmallDate = (dateString) => {
+    return moment(dateString, 'MM/DD/YYYY').format('M/DD');
   }
 
   getScheduleItems = () => {
@@ -61,27 +61,51 @@ class RosterView extends React.Component {
           key={schedule.key}
           value={schedule.key}
         >
-          {schedule.title}
+          {schedule.title} ({this.getSmallDate(schedule.date.start)}
+          - {this.getSmallDate(schedule.date.end)})
         </option>
       );
     });
   }
 
+  getInstructions = () => {
+    const { schedule } = this.state;
+    const realSchedule = this.props.schedules.find( (s) => {
+      return s.key === schedule;
+    });
+
+    if (isNil(realSchedule) || isNil(realSchedule.date)) {
+      return;
+    }
+
+    const start = moment(realSchedule.date.start, 'MM/DD/YYYY');
+    const now = moment();
+
+    return (start.isAfter(now)) ?
+      <div>
+        Click the active status to toggle your active roster for this
+        tournament.
+      </div> :
+      <div>
+        Final Results.  (Golfers no longer on your roster are in gray).
+      </div>;
+  }
+
   scheduleChanged = ($e) => {
     this.setState({
       ...this.state,
-      schedule: $e.value
+      schedule: $e.target.value
     });
   }
 
   render() {
 
-    const { team } = this.props;
+    const { team, activeChange } = this.props;
 
     return (
-      <div className="roster-lists">
+      <div>
 
-        <div>
+        <div className="tourney-select">
           <FormControl>
             <InputLabel htmlFor="schedule-select">Tournament</InputLabel>
             <Select
@@ -97,21 +121,28 @@ class RosterView extends React.Component {
           </FormControl>
         </div>
 
-        <div className="roster-list">
-          <div className="title">
-            My Roster
-          </div>
-          <div className="body">
-            {this.getRosterListView(team.currentRoster)}
-          </div>
-          <div className="table">
-            <ReactTable
-              data={[{active: false, name: 'Nate Bever', 'total_score': 10}]}
-              columns={this.getColumns()}
-              minRows={0}
-            />
+        <div className="roster-lists">
+          <div className="roster-list">
+            <div className="title">
+              My Roster
+            </div>
+            <div className="instructions">
+              { this.getInstructions()}
+            </div>
+            { !isNil(team) && !isNil(team.activeMap) &&
+              <RosterTable
+                currentRoster={team.currentRoster}
+                activeRosterMap={team.activeMap[this.state.schedule]}
+                activeChange={
+                  (golfer) => {
+                    activeChange(golfer, this.state.schedule);
+                  }
+                }
+              />
+            }
           </div>
         </div>
+
       </div>
     );
   }
@@ -124,7 +155,8 @@ RosterView.propTypes = {
     currentRoster: PropTypes.any,
     activeMap: PropTypes.object
   }),
-  schedules: PropTypes.array
+  schedules: PropTypes.array,
+  activeChange: PropTypes.func
 };
 
 RosterView.defaultProps = {
