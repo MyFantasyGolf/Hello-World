@@ -11,6 +11,9 @@ const user_service = require('./services/userManagement');
 const league_service = require('./services/leagueManagement');
 const roster_service = require('./services/rosterManagement');
 const pga_service = require('./services/pgaService');
+const resultsApi = require('./db/resultsApi');
+const season = require('./utils/season');
+const moment = require('moment');
 
 const leagueUpdater = require('./db/leagueUpdater');
 
@@ -49,7 +52,10 @@ app.use(async (request, response, next) => {
   await pup.updatePlayers();
   updating = false;
 
-  //leagueUpdater.update(request.session.userId);
+  leagueUpdater.update(request.session.userId);
+  console.log('Done updating');
+
+  await resultsApi.schedulesUpdated(season.getSeason(moment()));
 
   next();
 });
@@ -101,13 +107,16 @@ app.get('/api/users', user_service.getUsers);
 
 // players
 app.get('/api/golfers/:season', pga_service.getGolfers);
+app.get('/api/golfer/:key', pga_service.getGolfer);
 
 // leagues
 app.get('/api/myleagues', league_service.getMyLeagues);
 
 app.get('/api/league/:leagueId', league_service.getLeague);
 app.post('/api/league', league_service.createLeague);
+app.put('/api/league/:leagueId/setActiveRoster', roster_service.setActiveRoster);
 app.get('/api/league/:leagueId/myActiveRoster', roster_service.getActiveRoster);
+app.get('/api/league/:leagueId/schedules', league_service.getLeagueSchedules);
 
 app.get('/api/league/:leagueId/availablePlayers', league_service.getAvailablePlayers);
 app.get('/api/league/:leagueId/draftList', league_service.getDraftList);

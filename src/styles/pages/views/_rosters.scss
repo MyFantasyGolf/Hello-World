@@ -24,6 +24,10 @@
     }
   }
 
+  .tourney-select {
+    padding: 8px;
+  }
+
   .roster-lists {
 
     @media only screen and (min-width: $break_point) {
@@ -39,6 +43,23 @@
     box-shadow: 1px 2px 6px 0px rgba(0,0,0,0.2);
     margin-bottom: 8px;
     width: 100%;
+
+    .instructions {
+      padding-top: 12px;
+      padding-bottom: 4px;
+      padding-right: 4px;
+      font-style: italic;
+    }
+
+    .table-row {
+      cursor: pointer;
+    }
+
+    .table-loading {
+      font-size: 22px;
+      text-align: center;
+      padding: 20px;
+    }
 
     .title {
       font-family: $golf_font;
@@ -78,5 +99,5 @@
         }
       }
     }
-  }  
+  }
 }

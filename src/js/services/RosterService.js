@@ -14,12 +14,27 @@ class RosterService {
   @observable draftStatus = undefined;
   @observable activeRosterMap = undefined;
 
+  playerCache = {};
+
   constructor() {
     if (isNil(instance)) {
       instance = this;
     }
 
     return instance;
+  }
+
+  async getGolfer(key) {
+    const cachedPlayer = this.playerCache[key];
+
+    if (!isNil(cachedPlayer)) {
+      return cachedPlayer;
+    }
+
+    const player = await mfgFetch(`/api/golfer/${key}`, {method: 'GET'});
+
+    this.playerCache[key] = player;
+    return player;
   }
 
   async getRoster(leagueId, teamId) {
@@ -48,6 +63,19 @@ class RosterService {
 
     this.activeRosterMap = response.map;
     return this.activeRosterMap;
+  }
+
+  @action
+  async setActiveRoster(leagueId, map) {
+
+    await mfgFetch(`/api/league/${leagueId}/setActiveRoster`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(map)
+      });
+
+    this.activeRosterMap = map;
+    return map;
   }
 
   @action

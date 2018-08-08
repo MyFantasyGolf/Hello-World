@@ -5,6 +5,7 @@ const moment = require('moment');
 const isNil = require('lodash/isNil');
 const isString = require('lodash/isNil');
 const ObjectId = require('mongodb').ObjectId;
+const resultsApi = require('./resultsApi');
 
 const updateLeague = async (league) => {
   const db = await conn.db;
@@ -139,6 +140,29 @@ const getLeague = async( leagueId ) => {
   return league;
 };
 
+const getLeagueSchedules = async (leagueId) => {
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  try {
+    const league = await getLeague(leagueId);
+    const leagueStarted = moment(league.draft.completed, 'MM-DD-YYYY');
+
+    const schedules = await resultsApi.getSchedules(league.season, true);
+
+    const results = schedules.filter( (schedule) => {
+      const scheduleEnd = moment(schedule.date.end, 'MM/DD/YYYY');
+
+      return scheduleEnd.isAfter(leagueStarted);
+    })
+
+    return results;
+  }
+  catch(err) {
+    console.log(`Error finding schedules for league: ${err}`);
+  }
+};
+
 const createLeague = async (league) => {
   const db = await conn.db;
   const coll = db.collection('leagues');
@@ -230,5 +254,6 @@ module.exports = {
   getLeague,
   getLeagueInvitations,
   acceptInvitation,
-  declineInvitation
+  declineInvitation,
+  getLeagueSchedules
 };
