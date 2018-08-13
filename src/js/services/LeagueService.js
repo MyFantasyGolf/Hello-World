@@ -1,5 +1,6 @@
 import { observable, action } from 'mobx';
 import isNil from 'lodash/isNil';
+import isNumber from 'lodash/isNumber';
 import isString from 'lodash/isString';
 import mfgFetch from './mfgFetch';
 
@@ -11,6 +12,7 @@ class LeagueService {
   @observable selectedLeague = {};
   @observable myroster = [];
   @observable myInvites = [];
+  @observable standings = [];
 
   constructor() {
     if (isNil(instance)) {
@@ -28,6 +30,43 @@ class LeagueService {
     await mfgFetch('/api/league',
       { method: 'POST', body: JSON.stringify(league)});
     await this.loadMyLeagues();
+  }
+
+  @action
+  getStandings() {
+
+    const { teams } = this.selectedLeague;
+
+    if (isNil(teams)) {
+      return [];
+    }
+
+    const teamResults = teams.map( (team) => {
+      const scores = Object.keys(team.activeMap).map( (activeMapKey) => {
+        const results = team.activeMap[activeMapKey];
+
+        return results.reduce( (total, result) => {
+          const rScore = isNumber(result.score) ?
+            result.score : 10;
+
+          return total + rScore;
+        }, 0);
+      });
+
+      const score = scores.reduce( (total, oneScore) => {
+        return total + oneScore;
+      }, 0);
+
+      return { team, score };
+    });
+
+    teamResults.sort( (t1, t2) => {
+      return t1.score - t2.score;
+    });
+
+    this.standings = teamResults;
+
+    return this.standings;
   }
 
   @action

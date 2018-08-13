@@ -60,6 +60,10 @@ app.use(async (request, response, next) => {
   next();
 });
 
+app.get('/isUpdating', async (request, response) => {
+  response.send({ updating });
+});
+
 app.get('/update', async (request, response) => {
 
   // try espn first
@@ -83,19 +87,19 @@ app.get('/api/updateResults', async (request, response) => {
   response.send();
 });
 
-app.get('/api/scoreUpdate', (request, response) => {
-  const file = path.resolve(__dirname, '..', 'test', 'files', 'schedule.html');
-  const data = fs.readFileSync(file).toString();
-  const playerResults = espn.scrapeScheduleResults(data);
-  response.send(playerResults);
-});
+// app.get('/api/scoreUpdate', (request, response) => {
+//   const file = path.resolve(__dirname, '..', 'test', 'files', 'schedule.html');
+//   const data = fs.readFileSync(file).toString();
+//   const playerResults = espn.scrapeScheduleResults(data);
+//   response.send(playerResults);
+// });
 
-app.get('/api/updateRoster', async (request, response) => {
-  const file = path.resolve(__dirname, '..', 'test', 'files', 'players.html');
-  const pup = new espnPlayers.EspnPlayerUpdater();
-  const players = await pup.updatePlayers(file);
-  response.send(players);
-});
+// app.get('/api/updateRoster', async (request, response) => {
+//   const file = path.resolve(__dirname, '..', 'test', 'files', 'players.html');
+//   const pup = new espnPlayers.EspnPlayerUpdater();
+//   const players = await pup.updatePlayers(file);
+//   response.send(players);
+// });
 
 app.get('/api/schedule', pga_service.getSchedule);
 
