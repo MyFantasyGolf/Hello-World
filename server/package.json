@@ -4,9 +4,9 @@
   "description": "Server for MyFantasyGolf",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --inspect --watch ./**/*.js ./src/app.js",
+    "dev": "MFG_MONGO_URI=mongodb://localhost:27017 nodemon --inspect --watch ./**/*.js ./src/app.js",
     "clean": "rm -rf test/lib",
-    "transpile": "npm run clean && babel src --out-dir test/lib --source-maps",
+    "transpile": "npm run clean && babel src --out-dir ../heroku --source-maps",
     "test": "mocha --require babel-core/register test/**/*.spec.js",
     "test:debug": "mocha --require babel-core/register --inspect-brk test/**/*.spec.js --watch"
   },

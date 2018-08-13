@@ -1,0 +1,30 @@
+.standings {
+
+  .page-title {
+    padding-bottom: 8px;
+  }
+
+  .row {
+    font-size: 26px;
+    color: $dark;
+    padding: 8px;
+  }
+
+  .odd {
+    background-color: $washed_out_dark;
+  }
+
+  .ordinal {
+    color: $alt;
+    width: 40px;
+  }
+
+  .team-name {
+    min-width: 20%;
+  }
+
+  .standing-list {
+    border: 1px solid $highlight;
+    border-radius: 8px;
+  }
+}

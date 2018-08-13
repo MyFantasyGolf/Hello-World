@@ -1,6 +1,7 @@
 const conn = require('./connection');
 const moment = require('moment');
 const isNil = require('lodash/isNil');
+const isNumber = require('lodash/isNumber');
 const cloneDeep = require('lodash/cloneDeep');
 const season = require('../utils/season');
 const leagueApi = require('./leagueApi');
@@ -32,6 +33,17 @@ const getSchedulesThatApply = (leagueStarted, schedules) => {
   return schedulesThatApply;
 };
 
+const getScore = (lowestCut, golferResult) => {
+
+  if (isNil(golferResult) ||
+    isNil(golferResult.relativeScore) ||
+    isNaN(golferResult.relativeScore) ||
+    !isNumber(golferResult.relativeScore)) {
+    return lowestCut + 1;
+  }
+  return golferResult.relativeScore;
+};
+
 const updateTeam = async (team, league, schedules) => {
   let lastRoster = null;
 
@@ -57,12 +69,25 @@ const updateTeam = async (team, league, schedules) => {
 
     lastRoster = activeRoster;
 
-    activeRoster.forEach( (golfer) => {
-      const golfer_results = schedule.results[golfer.key];
+    const lowestScore = schedule.complete === false ?
+      0
+      :
+      Object.keys(schedule.results).reduce( (min, key) => {
+      const golferResult = schedule.results[key];
 
-      golfer.score = isNil(golfer_results) ||
-        isNil(golfer_results.relativeScore) ?
-          null : schedule.results[golfer.key].relativeScore;
+      if ( !isNumber(golferResult.relativeScore)) {
+        return min;
+      }
+
+      return golferResult.relativeScore > min ?
+        golferResult.relativeScore : min;
+    }, -100);
+
+    activeRoster.forEach( (golfer) => {
+      const golfer_results = !isNil(schedule) && !isNil(schedule.results) ?
+        schedule.results[golfer.key] : null;
+
+      golfer.score = getScore(lowestScore, golfer_results);
     });
 
     team.activeMap[schedule.key] = cloneDeep(activeRoster);

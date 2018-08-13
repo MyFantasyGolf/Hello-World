@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import isNil from 'lodash/isNil';
 
 import Icon from '@material-ui/core/Icon';
 
-import LeagueStandings from '../LeagueStandings';
+import LeagueStandings from '../Standings/LeagueStandings';
 import LeagueRosters from '../Roster/LeagueRosters';
 import LeagueTransactions from '../LeagueTransactions';
 import LeagueNotes from '../LeagueNotes';
@@ -36,7 +37,21 @@ class MyLeagueView extends React.Component {
     this.props.history.push('/mfg/home');
   }
 
+  getLeagueId = () => {
+    const leagueId = this.props.LeagueService.selectedLeague._id;
+
+    if (!isNil(leagueId)) {
+      return leagueId;
+    }
+
+    const uriParts = window.location.pathname.split('/');
+    return uriParts[3];
+  }
+
   render() {
+
+    const leagueId = this.getLeagueId();
+
     return (
       <div className="my-league-view">
         <div className="top-bar">
@@ -104,21 +119,21 @@ class MyLeagueView extends React.Component {
           <div className="content">
             <Switch>
               <Route
-                path="/mfg/myleagues/:leagueId/standings"
+                path={`/mfg/myleagues/${leagueId}/standings`}
                 component={ LeagueStandings } />
               <Route
-                path="/mfg/myleagues/:leagueId/rosters"
+                path={`/mfg/myleagues/${leagueId}/rosters`}
                 component={ LeagueRosters } />
               <Route
-                path="/mfg/myleagues/:leagueId/transactions"
+                path={`/mfg/myleagues/${leagueId}/transactions`}
                 component={ LeagueTransactions } />
               <Route
-                path="/mfg/myleagues/:leagueId/notes"
+                path={`/mfg/myleagues/${leagueId}/notes`}
                 component={ LeagueNotes } />
               <Route
-                path="/mfg/myleagues/:leagueId/leagueadmin"
+                path={`/mfg/myleagues/${leagueId}/leagueadmin`}
                 component={ LeagueAdmin } />
-              <Redirect to="/mfg/myleagues/:leagueId/standings" />
+              <Redirect to={`/mfg/myleagues/${leagueId}/standings`} />
             </Switch>
           </div>
         </div>

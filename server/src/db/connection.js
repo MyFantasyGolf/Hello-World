@@ -1,6 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 const isUndefined = require('lodash/isUndefined');
+const isNil = require('lodash/isNil');
 
 let connection;
 
@@ -16,7 +17,11 @@ class DBConnection {
   get db() {
     return new Promise( (resolve, reject) => {
       if (isUndefined(this._db)) {
-        MongoClient.connect('mongodb://localhost:27017', (err, client) => {
+        console.log(process.env.MFG_MONGO_URI);
+        const DB_URL = isNil(process.env.MFG_MONGO_URI) ?
+          'mongodb://localhost:27017' :
+          process.env.MFG_MONGO_URI;
+        MongoClient.connect(DB_URL, (err, client) => {
           this._client = client;
           this._db = connection.client.db('myfantasygolf');
           resolve(this._db);
