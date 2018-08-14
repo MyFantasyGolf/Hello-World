@@ -1,4 +1,9 @@
 {
   "presets": ["env"],
-  "plugins": ["syntax-object-rest-spread"]
+  "plugins": ["syntax-object-rest-spread",
+    ["transform-runtime", {
+      "polyfill": false,
+      "regenerator": true
+    }]
+  ]
 }

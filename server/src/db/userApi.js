@@ -36,7 +36,7 @@ const registerUser = async (user, registered = true) => {
     const existingUser = await getUser(user.email);
 
     if (isNil(existingUser)) {
-      await coll.ensureIndex('email', { unique: true });
+      await coll.createIndex('email', { unique: true });
       await coll.insertOne({ ...user });
     }
     else {

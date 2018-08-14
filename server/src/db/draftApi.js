@@ -19,7 +19,7 @@ const getDraft = async (leagueId) => {
       '_id': ObjectId(leagueId),
       'season': season.getSeason(moment())
     }, {
-      fields: {draft: 1}
+      projection: {draft: 1}
     }).toArray();
 
     return draft[0].draft;

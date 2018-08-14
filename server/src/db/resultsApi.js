@@ -41,11 +41,12 @@ const schedulesUpdated = async (season) => {
   coll.findOneAndUpdate({
     year: season
   }, {
-    updated: moment().format('MM-DD-YYYY HH:mm'),
-    year: season
+    $set: {
+      updated: moment().format('MM-DD-YYYY HH:mm'),
+      year: season
+    }
   },
   { upsert: true });
-
 };
 
 const saveTourSchedule = async (schedule) => {
@@ -57,8 +58,11 @@ const saveTourSchedule = async (schedule) => {
   try {
     coll.findOneAndUpdate(
       { year: schedule.year, title: schedule.title },
-      { ...schedule,
-        key: schedule.title.toLowerCase().replace(/ /g, '').replace(/\./g, '_')
+      { $set:
+        {
+          ...schedule,
+          key: schedule.title.toLowerCase().replace(/ /g, '').replace(/\./g, '_')
+        }
       },
       { upsert: true }
     );
@@ -108,9 +112,12 @@ const saveRoster = async (season, roster) => {
   try {
     coll.findOneAndUpdate(
       { year: season },
-      { ...roster,
-        year: season,
-        updated: moment().format('MM-DD-YYYY HH:mm')
+      { $set:
+        {
+          ...roster,
+          year: season,
+          updated: moment().format('MM-DD-YYYY HH:mm')
+        }
       },
       { upsert: true }
     );
