@@ -1,6 +1,6 @@
 #!/bin/sh
 
 cd server
-npm run install
+npm install
 npm run build:heroku
 cd ..
