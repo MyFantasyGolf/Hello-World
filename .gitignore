@@ -4,6 +4,5 @@ dist/
 server/db/
 node_modules/
 .DS_Store
-heroku/
 run_heroku.sh
 server/mongo/
