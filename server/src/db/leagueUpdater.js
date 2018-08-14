@@ -137,14 +137,15 @@ const update = async (userId) => {
       return 0;
     });
 
-    console.log(`Updating league ${league.name}`)
     const newLeague = await updateLeague(league, schedulesThatApply);
 
+    console.log('O leagueUpdater: 142');
     await coll.findOneAndUpdate({
       '_id': ObjectId(league._id)
     }, {
       $set: {'teams': newLeague.teams, updated: moment().format('MM-DD-YYYY')}
     });
+    console.log('D leagueUpdater: 142');
 
     console.log(`finished updating league. ${league.name}`);
   });

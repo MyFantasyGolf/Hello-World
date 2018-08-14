@@ -20,6 +20,8 @@ const leagueUpdater = require('./db/leagueUpdater');
 const app = express();
 let updating = false;
 
+app.use(express.static('./public'));
+
 app.use(session({
   secret: 'UniqueFantasyGolf',
   resave: true,
@@ -134,5 +136,9 @@ app.put('/api/league/:leagueId/draft/:round/:pick', league_service.makeDraftPick
 app.get('/api/invites', league_service.getMyInvitations);
 app.put('/api/invite/accept/:leagueId/:teamName', league_service.acceptInvitation);
 app.delete('/api/invite/decline/:leagueId', league_service.declineInvitation);
+
+app.get('*', (request, response) => {
+  response.sendFile(path.join(__dirname+'/public/index.html'));
+})
 
 app.listen(3000, () => console.log('MyFantasyGolf app listening on port 3000!'))

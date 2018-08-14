@@ -7,7 +7,9 @@
     "build:parcel": "parcel index.html --out-dir dist",
     "watch:parcel": "parcel index.html --out-dir dist",
     "serve": "webpack-dev-server --config webpack.config.js --mode development",
-    "build:prod": "webpack --config webpack.config.js --mode production"
+    "build:prod": "webpack --config webpack.config.js --mode production",
+    "move:public": "mkdir -p ./heroku/public && cp -r ./dist/* ./heroku/public",
+    "build:heroku": "rimraf -rf ./heroku && cd server && npm run transpile && cd .. && npm run build:prod && npm run move:public"
   },
   "repository": {
     "type": "git",

@@ -21,7 +21,7 @@ class DBConnection {
         const DB_URL = isNil(process.env.MFG_MONGO_URI) ?
           'mongodb://localhost:27017' :
           process.env.MFG_MONGO_URI;
-        MongoClient.connect(DB_URL, (err, client) => {
+        MongoClient.connect(DB_URL, { useNewUrlParser: true }, (err, client) => {
           this._client = client;
           this._db = connection.client.db('myfantasygolf');
           resolve(this._db);

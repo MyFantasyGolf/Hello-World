@@ -38,13 +38,13 @@ const getLeaguesForUser = async (userId) => {
         }
       }
     }, {
-      fields: {draft: 0}
+      projection: {draft: 0}
     }).toArray();
 
     return leagues;
   }
   catch(err) {
-    console.log(`Error saving league: ${err}`);
+    console.log(`Error finding league: ${err}`);
   }
 };
 
@@ -61,7 +61,7 @@ const getLeagueInvitations = async (userId) => {
         }
       }
     }, {
-      fields: {name: 1, commissioner: 1, _id: 1}
+      projection: {name: 1, commissioner: 1, _id: 1}
     }).toArray();
 
     return leagues;
@@ -78,7 +78,7 @@ const acceptInvitation = async (userId, leagueId, teamName) => {
   const invitations = await coll.findOne({
     '_id': ObjectId(leagueId)
   }, {
-    fields: {invitations: 1, teams: 1}
+    projection: {invitations: 1, teams: 1}
   });
 
   const user = await userApi.getUserById(userId);
@@ -112,7 +112,7 @@ const declineInvitation = async (userId, leagueId) => {
   const invitations = await coll.findOne({
     '_id': ObjectId(leagueId)
   }, {
-    fields: {invitations: 1}
+    projection: {invitations: 1}
   });
 
   const newInvitations = invitations.invitations.filter( (invite) => {
