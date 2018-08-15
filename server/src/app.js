@@ -18,6 +18,7 @@ const moment = require('moment');
 const leagueUpdater = require('./db/leagueUpdater');
 
 const app = express();
+const port = isNil(process.env.PORT) ? 3000 : process.env.PORT;
 let updating = false;
 
 app.use(express.static('./public'));
@@ -141,4 +142,4 @@ app.get('*', (request, response) => {
   response.sendFile(path.join(__dirname+'/public/index.html'));
 })
 
-app.listen(3000, () => console.log('MyFantasyGolf app listening on port 3000!'))
+app.listen(port, () => console.log(`MyFantasyGolf app listening on port ${port}!`))
