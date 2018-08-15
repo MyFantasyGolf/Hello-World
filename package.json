@@ -4,6 +4,8 @@
   "description": "A simple fantasy golf application made by PGA professionals",
   "main": "index.js",
   "scripts": {
+    "preinstall": "cd server && npm install",
+    "postinstall": "npm run build:heroku && cp -Rf server/node_modules heroku",
     "build:parcel": "parcel index.html --out-dir dist",
     "watch:parcel": "parcel index.html --out-dir dist",
     "serve": "webpack-dev-server --config webpack.config.js --mode development",
