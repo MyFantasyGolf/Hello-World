@@ -5,4 +5,4 @@ server/db/
 node_modules/
 .DS_Store
 server/mongo/
-heroku/
+heroku/node_modules/
