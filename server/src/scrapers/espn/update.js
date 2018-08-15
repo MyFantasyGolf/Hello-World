@@ -4,7 +4,7 @@ const path = require('path');
 const request = require('request');
 const asyncRequest = require('request-promise');
 const moment = require('moment');
-const sleep = require('sleep');
+const sleep = require('../../utils/sleep');
 const isNil = require('lodash/isNil');
 
 const season = require('../../utils/season');
@@ -94,7 +94,7 @@ class EspnUpdater {
 
       const sleeper = parseInt((Math.random() * 3) + 1);
       console.log(`Sleeping for ${sleeper} seconds.\n`);
-      sleep.sleep(sleeper);
+      await sleep.sleep(sleeper);
     }
   }
 

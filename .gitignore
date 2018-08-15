@@ -6,3 +6,4 @@ node_modules/
 .DS_Store
 run_heroku.sh
 server/mongo/
+heroku/
