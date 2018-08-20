@@ -55,15 +55,15 @@ const saveTourSchedule = async (schedule) => {
   const db = await conn.db;
   const coll = db.collection('schedules');
 
-  const titleRegexp = new RegExp(`/^${schedule.title}$/i`);
+  const key = schedule.title.toLowerCase().replace(/ /g, '').replace(/\./g, '_');
 
   try {
     coll.findOneAndUpdate(
-      { year: schedule.year, title: titleRegexp },
+      { year: schedule.year, key: key },
       { $set:
         {
           ...schedule,
-          key: schedule.title.toLowerCase().replace(/ /g, '').replace(/\./g, '_')
+          key: key
         }
       },
       { upsert: true }
