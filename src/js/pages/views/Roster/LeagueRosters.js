@@ -9,7 +9,9 @@ import PreDraft from './PreDraft';
 import Draft from './Draft';
 import RosterView from './RosterView';
 
-@inject('LeagueService', 'RosterService', 'AuthService')
+import OkCancelDialog from '../../../widgets/OkCancelDialog';
+
+@inject('LeagueService', 'RosterService', 'AuthService', 'LoadingService')
 @observer
 class LeagueRosters extends React.Component {
 
@@ -19,7 +21,8 @@ class LeagueRosters extends React.Component {
     super(props);
     this.state = {
       lastSelectedLeague: undefined,
-      team: {}
+      team: {},
+      activeGolferDialog: false
     };
   }
 
@@ -40,20 +43,30 @@ class LeagueRosters extends React.Component {
   }
 
   loadMyTeam = async () => {
-    await this.props.LeagueService.refreshSelectedLeague();
+    const {
+      LeagueService,
+      LoadingService,
+      AuthService,
+      RosterService
+    } = this.props;
 
-    const team = await this.props.RosterService.getRoster(
-      this.props.LeagueService.selectedLeague._id,
-      this.props.AuthService.me._id
+    LoadingService.startLoading('leagueRosters');
+    await LeagueService.refreshSelectedLeague();
+
+    const team = await RosterService.getRoster(
+      LeagueService.selectedLeague._id,
+      AuthService.me._id
     );
     const schedules =
-      await this.props.LeagueService.getSchedulesForSelectedLeague();
+      await LeagueService.getSchedulesForSelectedLeague();
 
     this.setState({
       ...this.state,
       team: team,
       schedules
     });
+
+    LoadingService.stopLoading('leagueRosters');
   }
 
   getContent(
@@ -93,7 +106,11 @@ class LeagueRosters extends React.Component {
   }
 
   activeChange = async (golfer, schedule) => {
-    const { LeagueService, RosterService } = this.props;
+    const {
+      LeagueService,
+      RosterService,
+      LoadingService
+    } = this.props;
 
     const map = await RosterService.getMyActiveRosterMap(
       LeagueService.selectedLeague._id
@@ -133,6 +150,8 @@ class LeagueRosters extends React.Component {
 
       newMap[schedule] = changedList;
 
+      LoadingService.startLoading('leagueRosters');
+
       await RosterService.setActiveRoster(
         LeagueService.selectedLeague._id,
         newMap,
@@ -141,11 +160,21 @@ class LeagueRosters extends React.Component {
 
       await this.loadMyTeam();
 
+      LoadingService.stopLoading('leagueRosters');
       return;
     }
 
-    alert(`You cannot have more than ${activeGolfers} active golfers.` +
-      ' De-activate someone else first.');
+    this.setState({
+      ...this.state,
+      activeGolferDialog: true
+    });
+  }
+
+  clearActiveError = () => {
+    this.setState({
+      ...this.state,
+      activeGolferDialog: false
+    });
   }
 
   addPlayerToMyList = (player) => {
@@ -179,10 +208,13 @@ class LeagueRosters extends React.Component {
   reinit = async () => {
     const ls = this.props.LeagueService;
     const rs = this.props.RosterService;
+    const { LoadingService } = this.props;
 
     if (isNil(ls.selectedLeague)) {
       return;
     }
+
+    LoadingService.startLoading('leagueRosters');
 
     await this.loadMyTeam();
     await rs.getAvailablePlayers(ls.selectedLeague, true);
@@ -197,6 +229,8 @@ class LeagueRosters extends React.Component {
       ...this.state,
       lastSelectedLeague: ls.selectedLeague
     });
+
+    LoadingService.stopLoading('leagueRosters');
   }
 
   componentDidMount() {
@@ -217,14 +251,27 @@ class LeagueRosters extends React.Component {
   }
 
   render() {
-    //eslint-disable-next-line
-    const {selectedLeague} = this.props.LeagueService;
+
+    const {LeagueService, RosterService} = this.props;
 
     //eslint-disable-next-line
-    const {availablePlayers, myDraftList, draft} = this.props.RosterService;
+    const {selectedLeague} = LeagueService;
+
+    //eslint-disable-next-line
+    const {availablePlayers, myDraftList, draft} = RosterService;
+
+    const activeErrorText = `You cannot have more than ${activeGolfers} ` +
+      'active golfers. De-activate someone else first.';
+    const { activeGolfers } = LeagueService.selectedLeague;
 
     return (
       <div className="rosters">
+        <OkCancelDialog
+          text={activeErrorText}
+          title="Error"
+          callback={this.clearActiveError}
+          open={this.state.activeGolferDialog}
+        />
         { this.getContent(availablePlayers, myDraftList) }
       </div>
     );
@@ -232,6 +279,7 @@ class LeagueRosters extends React.Component {
 }
 
 LeagueRosters.propTypes = {
+  LoadingService: PropTypes.object,
   LeagueService: PropTypes.object,
   RosterService: PropTypes.object,
   AuthService: PropTypes.object

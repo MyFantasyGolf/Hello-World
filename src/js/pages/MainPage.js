@@ -20,7 +20,7 @@ import {
   Switch
 } from 'react-router-dom';
 
-@inject('LeagueService')
+@inject('LeagueService', 'LoadingService')
 @observer
 class MainPage extends React.Component {
 
@@ -29,10 +29,34 @@ class MainPage extends React.Component {
   }
 
   async componentDidMount() {
+    const {LoadingService} = this.props;
+
+    LoadingService.startLoading('mainPage');
+    this.monitorUpdating();
+  }
+
+  monitorUpdating = async () => {
+    const updating = await this.checkIfUpdating();
+
+    if (updating) {
+      setTimeout(this.monitorUpdating, 500);
+      return;
+    }
+
+    await this.loadData();
+  }
+
+  checkIfUpdating = async () => {
+    const isIt = await this.props.LoadingService.isUpdating();
+    return isIt;
+  }
+
+  async loadData() {
     const leagueService = this.props.LeagueService;
     await leagueService.loadMyLeagues();
     await leagueService.loadMyInvites();
     leagueService.selectLeague( leagueService.myLeagues[0] );
+    this.props.LoadingService.stopLoading('mainPage');
   }
 
   navigate = (path) => {
@@ -75,6 +99,7 @@ class MainPage extends React.Component {
 
 MainPage.propTypes = {
   LeagueService: PropTypes.object,
+  LoadingService: PropTypes.object,
   history: PropTypes.object
 };
 

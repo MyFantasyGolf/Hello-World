@@ -55,9 +55,11 @@ const saveTourSchedule = async (schedule) => {
   const db = await conn.db;
   const coll = db.collection('schedules');
 
+  const titleRegexp = new RegExp(`/^${schedule.title}$/i`);
+
   try {
     coll.findOneAndUpdate(
-      { year: schedule.year, title: schedule.title },
+      { year: schedule.year, title: titleRegexp },
       { $set:
         {
           ...schedule,

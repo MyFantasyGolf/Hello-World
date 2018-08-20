@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "MFG_MONGO_URI=mongodb://localhost:27017 nodemon --inspect --watch ./**/*.js ./src/app.js",
+    "dev:mlab": "MFG_MONGO_URI=mongodb://admin:password1@ds125912.mlab.com:25912/myfantasygolf nodemon --inspect --watch ./**/*.js ./src/app.js",
     "clean": "rm -rf ../heroku",
     "transpile": "npm run clean && babel src --out-dir ../heroku --source-maps && cp package.json ../heroku && cd ../heroku && npm install",
     "test": "mocha --require babel-core/register test/**/*.spec.js",

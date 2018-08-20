@@ -78,7 +78,8 @@ class EntryPage extends React.Component {
   }
 
   render() {
-    return this.buildPresentation();
+    // return this.buildPresentation();
+    return this.buildLoadedScreen();
   }
 }
 

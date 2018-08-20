@@ -63,7 +63,7 @@ app.use(async (request, response, next) => {
   next();
 });
 
-app.get('/isUpdating', async (request, response) => {
+app.get('/api/isUpdating', async (request, response) => {
   response.send({ updating });
 });
 

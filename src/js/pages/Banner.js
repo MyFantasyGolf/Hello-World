@@ -6,7 +6,7 @@ const Banner = () => {
     <div className="banner-parent">
       <div className="left golf-icons-golf-tee">
       </div>
-      <div className="title">MyFantasyGold</div>
+      <div className="title">MyFantasyGolf</div>
       <UserBox className="user-box"/>
     </div>
   );
