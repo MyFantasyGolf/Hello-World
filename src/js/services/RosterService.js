@@ -79,6 +79,12 @@ class RosterService {
   }
 
   @action
+  async releasePlayer(leagueId, golfer) {
+    await mfgFetch(`/api/league/${leagueId}/roster/${golfer.key}`,
+      {method: 'DELETE'});
+  }
+
+  @action
   async getAvailablePlayers(league, force = false) {
 
     if (isNil(league) && force === false) {

@@ -1,0 +1,35 @@
+.roster-table {
+
+  .player {
+    justify-content: flex-start !important;
+    font-size: 24px;
+
+    .name {
+      @media only screen and (min-width: $break_point) {
+        min-width: 260px;
+      }
+    }
+
+    .score {
+      min-width: 100px;
+    }
+
+    .actions {
+      padding-top: 6px;
+    }
+
+    .icon {
+      margin: 4px;
+    }
+
+    .golf-icons-check {
+      background-color: $dark;
+      color: white;
+      border-radius: 18px;
+    }
+
+    .golf-icons-cross2 {
+      border-radius: 20px !important;
+    }
+  }
+}

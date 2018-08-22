@@ -2,69 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
+import isNil from 'lodash/isNil';
 import inject from '../../../services/inject';
 import { observer } from 'mobx-react';
+
+import OkCancelDialog from '../../../widgets/OkCancelDialog';
 
 @inject('RosterTableService')
 @observer
 class RosterTable extends React.Component {
 
-  activeCellRenderer = (row) => {
-    return (
-      <div
-        style={{
-          color:
-            row.value === true ?
-              '#386331' : 'gray',
-          textAlign: 'center'
-        }}
-      >
-        <div
-          className={`icon table-row ${row.value === true ?
-            'golf-icons-check' : 'golf-icons-cross2'}`}
-          onClick={() => { this.activeClicked(row.original); }}
-        />
-      </div>);
-  };
+  constructor(props) {
+    super(props);
 
-  cellColorRenderer = (row) => {
-    return (
-      <div
-        style={{
-          color: row.original.current === true ?
-            'black' : 'gray',
-          fontSize: '20px'
-        }}
-      >
-        {row.value}
-      </div>
-    );
-  }
-
-  getColumns = () => {
-    return [
-      {
-        Header: 'Active',
-        accessor: 'active',
-        width: 80,
-        Cell: this.activeCellRenderer
-      },
-      {
-        Header: 'Name',
-        accessor: 'name',
-        Cell: this.cellColorRenderer
-      },
-      {
-        Header: 'Tournament Score',
-        accessor: 'score',
-        Cell: this.cellColorRenderer
-      },
-      {
-        Header: 'Total Score',
-        accessor: 'totalScore',
-        Cell: this.cellColorRenderer
-      }
-    ];
+    this.state = {
+      releaseDialog: false,
+      chosenGolfer: null
+    };
   }
 
   componentDidMount() {
@@ -88,10 +42,66 @@ class RosterTable extends React.Component {
     );
   }
 
+  buildPlayerRows = (computedRoster) => {
+    return computedRoster.map( (golfer) => {
+      return(
+        <div className="player" key={golfer.key}>
+          <div
+            style={{
+              color:
+                golfer.active === true ?
+                  '#386331' : 'gray',
+              textAlign: 'center'
+            }}
+          >
+            <div
+              className={`icon table-row ${golfer.active === true ?
+                'golf-icons-star-full' : 'golf-icons-star-empty'}`}
+              onClick={() => { this.activeClicked(golfer); }}
+            />
+          </div>
+          <div className="name">
+            {golfer.name}
+          </div>
+          <div className="score">
+            {golfer.score}
+          </div>
+          <div className="actions">
+            { golfer.current &&
+              <span
+                className="golf-icons-cross2"
+                onClick={() => { this.release(golfer); }}/>
+            }
+          </div>
+        </div>
+      );
+    });
+  }
+
   activeClicked = (golfer) => {
     const { activeChange } = this.props;
 
     activeChange(golfer);
+  }
+
+  release = (golfer) => {
+    this.setState({
+      ...this.state,
+      releaseDialog: true,
+      chosenGolfer: golfer
+    });
+  }
+
+  doRelease = async (doIt) => {
+    if (doIt) {
+      await this.props.releasePlayer(this.state.chosenGolfer);
+    }
+
+    this.setState({
+      ...this.state,
+      releaseDialog: false,
+      chosenGolfer: null
+    });
   }
 
   render() {
@@ -99,19 +109,29 @@ class RosterTable extends React.Component {
     const { RosterTableService } = this.props;
     const computedRoster = RosterTableService.playerList;
 
+    const playerRows = this.buildPlayerRows(computedRoster);
+    const golferName = isNil(this.state.chosenGolfer) ?
+      '' : this.state.chosenGolfer.name;
+
     return (
-      <div className="table">
-        { RosterTableService.loading &&
-          <div className="table-loading">Loading...</div>
-        }
-        { RosterTableService.loading === false &&
-          <ReactTable
-            className=" -striped -highlight"
-            data={computedRoster}
-            columns={this.getColumns()}
-            minRows={0}
-          />
-        }
+      <div>
+
+        <OkCancelDialog
+          open={this.state.releaseDialog}
+          callback={this.doRelease}
+          title="Are you sure?"
+          text={`Do you really want to drop ${golferName}?`}
+        />
+
+        <div className="roster-table">
+          <div className="roster-lists">
+            <div className="roster-list">
+              <div className="body">
+                {playerRows}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -121,7 +141,8 @@ RosterTable.propTypes = {
   currentRoster: PropTypes.any,
   activeRosterMap: PropTypes.any,
   RosterTableService: PropTypes.object,
-  activeChange: PropTypes.func
+  activeChange: PropTypes.func,
+  releasePlayer: PropTypes.func
 };
 
 export default RosterTable;

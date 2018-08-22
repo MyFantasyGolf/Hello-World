@@ -14,8 +14,8 @@ const getActiveRoster = async (request, response) => {
   }
 
   const map = await rosterApi.getActiveRosterMap(leagueId, userId);
-
-  response.send({map});
+  const activeMap = map.activeMap;
+  response.send({activeMap});
 };
 
 const setActiveRoster = async (request, response) => {
@@ -33,7 +33,23 @@ const setActiveRoster = async (request, response) => {
   response.send(newMap);
 };
 
+const releasePlayer = async (request, response) => {
+
+  const leagueId = request.params.leagueId;
+  const golferKey = request.params.golferId;
+  const userId = request.session.userId;
+
+  if (isNil(leagueId) || isNil(golferKey)) {
+    response.status(500).send('Must have a vaild league and golfer id.');
+    return;
+  }
+
+  await rosterApi.releasePlayer(leagueId, userId, golferKey);
+  response.send({status: 'OK'});
+};
+
 module.exports = {
   getActiveRoster,
-  setActiveRoster
+  setActiveRoster,
+  releasePlayer
 };

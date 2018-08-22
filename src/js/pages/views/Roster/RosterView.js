@@ -100,7 +100,7 @@ class RosterView extends React.Component {
 
   render() {
 
-    const { team, activeChange } = this.props;
+    const { team, activeChange, releasePlayer } = this.props;
 
     return (
       <div>
@@ -138,6 +138,7 @@ class RosterView extends React.Component {
                     activeChange(golfer, this.state.schedule);
                   }
                 }
+                releasePlayer={(golfer) => { releasePlayer(golfer); }}
               />
             }
           </div>
@@ -156,7 +157,8 @@ RosterView.propTypes = {
     activeMap: PropTypes.object
   }),
   schedules: PropTypes.array,
-  activeChange: PropTypes.func
+  activeChange: PropTypes.func,
+  releasePlayer: PropTypes.func
 };
 
 RosterView.defaultProps = {

@@ -102,7 +102,23 @@ class LeagueRosters extends React.Component {
         team={this.state.team}
         schedules={this.state.schedules}
         activeChange={this.activeChange}
+        releasePlayer={this.releasePlayer}
       />);
+  }
+
+  releasePlayer = async (golfer) => {
+
+    const { LoadingService, RosterService, LeagueService } = this.props;
+
+    LoadingService.startLoading('leagueRosters');
+
+    await RosterService.releasePlayer(
+      LeagueService.selectedLeague._id,
+      golfer
+    );
+    await this.loadMyTeam();
+
+    LoadingService.stopLoading('leagueRosters');
   }
 
   activeChange = async (golfer, schedule) => {
@@ -118,7 +134,8 @@ class LeagueRosters extends React.Component {
 
     const { activeGolfers } = LeagueService.selectedLeague;
 
-    const currentActiveGolfers = await map[schedule].length;
+    const currentActiveGolfers = isNil(map[schedule]) ?
+      0 : map[schedule].length;
 
     if (
       golfer.active === true ||

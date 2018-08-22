@@ -23,7 +23,7 @@ const getActiveRosterMap = async (leagueId, userId) => {
     return team.user === userId;
   });
 
-  return myMap.activeMap;
+  return myMap;
 };
 
 const setActiveRosterMap = async (leagueId, userId, map) => {
@@ -38,6 +38,34 @@ const setActiveRosterMap = async (leagueId, userId, map) => {
   });
 
   return map;
+};
+
+const releasePlayer = async(leagueId, userId, golferKey) => {
+  const map = await getActiveRosterMap(leagueId, userId);
+
+  const newCurrent = map.currentRoster.filter( (golfer) => {
+    return golferKey !== golfer.key;
+  });
+
+  Object.keys(map.activeMap).forEach( (tournament) => {
+    const newList = map.activeMap[tournament].filter( (active) => {
+      return !isNil(active.score) || active.key !== golferKey;
+    });
+
+    map.activeMap[tournament] = newList;
+  });
+
+  await setActiveRosterMap(leagueId, userId, map);
+
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  await coll.findOneAndUpdate({
+    _id: ObjectId(leagueId),
+    'teams.user': userId
+  }, {
+    $set: { 'teams.$.currentRoster': newCurrent }
+  });
 };
 
 const getGolfer = async (key) => {
@@ -64,5 +92,6 @@ const getGolfer = async (key) => {
 module.exports = {
   getActiveRosterMap,
   getGolfer,
-  setActiveRosterMap
+  setActiveRosterMap,
+  releasePlayer
 };
