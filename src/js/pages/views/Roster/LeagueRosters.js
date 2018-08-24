@@ -121,11 +121,55 @@ class LeagueRosters extends React.Component {
     LoadingService.stopLoading('leagueRosters');
   }
 
-  activeChange = async (golfer, schedule) => {
+  makeActiveChange = async (map, schedule, golfer) => {
+
     const {
       LeagueService,
       RosterService,
       LoadingService
+    } = this.props;
+
+    const newMap = isNil(map) ? {} : map;
+
+    if (isNil(newMap[schedule])) {
+      newMap[schedule] = [];
+    }
+
+    const newActiveList = newMap[schedule];
+
+    const changedList = (golfer.active) ?
+      newActiveList.filter( (g) => {
+        return g.key !== golfer.key;
+      }) :
+      newActiveList;
+
+    if (!golfer.active) {
+      newActiveList.push({
+        key: golfer.key,
+        score: null
+      });
+    }
+
+    newMap[schedule] = changedList;
+
+    LoadingService.startLoading('leagueRosters');
+
+    await RosterService.setActiveRoster(
+      LeagueService.selectedLeague._id,
+      newMap,
+      this.state.team.user
+    );
+
+    await this.loadMyTeam();
+
+    LoadingService.stopLoading('leagueRosters');
+    return;
+  }
+
+  activeChange = async (golfer, schedule) => {
+    const {
+      LeagueService,
+      RosterService
     } = this.props;
 
     const map = await RosterService.getMyActiveRosterMap(
@@ -134,7 +178,7 @@ class LeagueRosters extends React.Component {
 
     const { activeGolfers } = LeagueService.selectedLeague;
 
-    const currentActiveGolfers = isNil(map[schedule]) ?
+    const currentActiveGolfers = isNil(map) || isNil(map[schedule]) ?
       0 : map[schedule].length;
 
     if (
@@ -143,41 +187,7 @@ class LeagueRosters extends React.Component {
       isNil(map[schedule]) ||
       currentActiveGolfers < parseInt(activeGolfers)
     ) {
-
-      const newMap = isNil(map) ? {} : map;
-
-      if (isNil(newMap[schedule])) {
-        newMap[schedule] = [];
-      }
-
-      const newActiveList = newMap[schedule];
-
-      const changedList = (golfer.active) ?
-        newActiveList.filter( (g) => {
-          return g.key !== golfer.key;
-        }) :
-        newActiveList;
-
-      if (!golfer.active) {
-        newActiveList.push({
-          key: golfer.key,
-          score: null
-        });
-      }
-
-      newMap[schedule] = changedList;
-
-      LoadingService.startLoading('leagueRosters');
-
-      await RosterService.setActiveRoster(
-        LeagueService.selectedLeague._id,
-        newMap,
-        this.state.team.user
-      );
-
-      await this.loadMyTeam();
-
-      LoadingService.stopLoading('leagueRosters');
+      this.makeActiveChange(map, schedule, golfer);
       return;
     }
 

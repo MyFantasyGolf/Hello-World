@@ -52,15 +52,28 @@ class EntryPage extends React.Component {
     return <Redirect from="/login" to="/" />;
   }
 
+  checkForLoginRedirect = () => {
+    const { AuthService } = this.props;
+
+    if (isNil(AuthService.me)) {
+      this.loggedInUrl = window.location.pathname;
+      return <Redirect to="/login" />;
+    }
+
+    if (!isNil(this.loggedInUrl)) {
+      const uri = this.loggedInUrl;
+      this.loggedInUrl = null;
+      return <Redirect to={uri} />;
+    }
+  }
+
   buildLoadedScreen() {
     return (
       <MuiThemeProvider theme={muiTheme}>
         <BrowserRouter>
           <Switch>
             { this.buildLoginRoute() }
-            { isNil(this.props.AuthService.me) &&
-              <Redirect to="/login" />
-            }
+            { this.checkForLoginRedirect() }
             <Route path="/mfg" component={HomePage} />
             <Redirect exact from="/" to="/mfg" />
           </Switch>

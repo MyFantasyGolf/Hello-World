@@ -55,7 +55,7 @@ const releasePlayer = async(leagueId, userId, golferKey) => {
     map.activeMap[tournament] = newList;
   });
 
-  await setActiveRosterMap(leagueId, userId, map);
+  await setActiveRosterMap(leagueId, userId, map.activeMap);
 
   const db = await conn.db;
   const coll = db.collection('leagues');
