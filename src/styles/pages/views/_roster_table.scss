@@ -1,3 +1,28 @@
+.roster-table-container {
+  @media only screen and (min-width: $break_point) {
+    width: 50%;
+    min-width: 450px;
+  }
+}
+
+.available-player-table {
+  flex-grow: 1;
+  height: 100%;
+  overflow: auto;
+
+  .add-player {
+    font-size: 16px;
+    padding: 6px;
+    font-weight: normal;
+    margin-right: 8px;
+
+    span {
+      padding: 4px;
+      border-radius: 20px !important;
+    }
+  }
+}
+
 .roster-table {
 
   .player {
@@ -16,6 +41,8 @@
 
     .actions {
       padding-top: 6px;
+      flex-grow: 1;
+      text-align: right;
     }
 
     .icon {

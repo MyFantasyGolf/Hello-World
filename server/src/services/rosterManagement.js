@@ -48,8 +48,24 @@ const releasePlayer = async (request, response) => {
   response.send({status: 'OK'});
 };
 
+const addPlayer = async (request, response) => {
+
+  const leagueId = request.params.leagueId;
+  const golfer = request.body;
+  const userId = request.session.userId;
+
+  if (isNil(leagueId) || isNil(golfer)) {
+    response.status(500).send('Must have a vaild league and golfer.');
+    return;
+  }
+
+  await rosterApi.addPlayer(leagueId, userId, golfer);
+  response.send({status: 'OK'});
+};
+
 module.exports = {
   getActiveRoster,
   setActiveRoster,
-  releasePlayer
+  releasePlayer,
+  addPlayer
 };

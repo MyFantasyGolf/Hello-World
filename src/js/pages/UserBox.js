@@ -6,6 +6,8 @@ import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
+import { withRouter } from 'react-router';
+
 @inject('AuthService')
 class UserBox extends React.Component {
 
@@ -40,6 +42,7 @@ class UserBox extends React.Component {
     });
 
     this.props.AuthService.logout();
+    this.props.history.push('/login');
   }
 
   changePassword = () => {
@@ -82,7 +85,8 @@ class UserBox extends React.Component {
 }
 
 UserBox.propTypes = {
-  AuthService: PropTypes.object
+  AuthService: PropTypes.object,
+  history: PropTypes.object
 };
 
-export default UserBox;
+export default withRouter(UserBox);

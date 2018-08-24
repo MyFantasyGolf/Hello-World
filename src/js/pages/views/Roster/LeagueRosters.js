@@ -103,7 +103,30 @@ class LeagueRosters extends React.Component {
         schedules={this.state.schedules}
         activeChange={this.activeChange}
         releasePlayer={this.releasePlayer}
+        addPlayer={this.addPlayer}
       />);
+  }
+
+  addPlayer = async (golfer) => {
+
+    const { RosterService, LoadingService, LeagueService } =
+      this.props;
+
+    LoadingService.startLoading('leagueRosters');
+
+    await RosterService.addPlayer(
+      LeagueService.selectedLeague._id,
+      golfer
+    );
+
+    await RosterService.getAvailablePlayers(
+      LeagueService.selectedLeague._id,
+      true
+    );
+    
+    await this.loadMyTeam();
+
+    LoadingService.stopLoading('leagueRosters');
   }
 
   releasePlayer = async (golfer) => {

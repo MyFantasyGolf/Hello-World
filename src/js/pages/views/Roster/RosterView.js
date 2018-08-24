@@ -7,6 +7,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
 import RosterTable from './RosterTable';
+import AvailablePlayerTable from './AvailablePlayerTable';
 import PlayerRow from './PlayerRow';
 
 import moment from 'moment';
@@ -100,7 +101,12 @@ class RosterView extends React.Component {
 
   render() {
 
-    const { team, activeChange, releasePlayer } = this.props;
+    const {
+      team,
+      activeChange,
+      releasePlayer,
+      addPlayer } =
+    this.props;
 
     return (
       <div>
@@ -130,16 +136,21 @@ class RosterView extends React.Component {
               { this.getInstructions()}
             </div>
             { !isNil(team) && !isNil(team.activeMap) &&
-              <RosterTable
-                currentRoster={team.currentRoster}
-                activeRosterMap={team.activeMap[this.state.schedule]}
-                activeChange={
-                  (golfer) => {
-                    activeChange(golfer, this.state.schedule);
+              <div className="roster-tables">
+                <RosterTable
+                  currentRoster={team.currentRoster}
+                  activeRosterMap={team.activeMap[this.state.schedule]}
+                  activeChange={
+                    (golfer) => {
+                      activeChange(golfer, this.state.schedule);
+                    }
                   }
-                }
-                releasePlayer={(golfer) => { releasePlayer(golfer); }}
-              />
+                  releasePlayer={(golfer) => { releasePlayer(golfer); }}
+                />
+                <AvailablePlayerTable
+                  addPlayer={addPlayer}
+                />
+              </div>
             }
           </div>
         </div>
@@ -158,7 +169,8 @@ RosterView.propTypes = {
   }),
   schedules: PropTypes.array,
   activeChange: PropTypes.func,
-  releasePlayer: PropTypes.func
+  releasePlayer: PropTypes.func,
+  addPlayer: PropTypes.func
 };
 
 RosterView.defaultProps = {

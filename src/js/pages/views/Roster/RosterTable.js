@@ -114,7 +114,7 @@ class RosterTable extends React.Component {
       '' : this.state.chosenGolfer.name;
 
     return (
-      <div>
+      <div className="roster-table-container">
 
         <OkCancelDialog
           open={this.state.releaseDialog}

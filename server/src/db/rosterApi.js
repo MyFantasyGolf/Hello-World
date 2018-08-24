@@ -68,6 +68,27 @@ const releasePlayer = async(leagueId, userId, golferKey) => {
   });
 };
 
+const addPlayer = async (leagueId, userId, golfer) => {
+
+  const map = await getActiveRosterMap(leagueId, userId);
+
+  map.currentRoster.push({
+    key: golfer.key,
+    firstName: golfer.firstName,
+    lastName: golfer.lastName
+  });
+
+  const db = await conn.db;
+  const coll = db.collection('leagues');
+
+  await coll.findOneAndUpdate({
+    _id: ObjectId(leagueId),
+    'teams.user': userId
+  }, {
+    $set: { 'teams.$.currentRoster': map.currentRoster }
+  });
+};
+
 const getGolfer = async (key) => {
 
   const db = await conn.db;
@@ -93,5 +114,6 @@ module.exports = {
   getActiveRosterMap,
   getGolfer,
   setActiveRosterMap,
-  releasePlayer
+  releasePlayer,
+  addPlayer
 };

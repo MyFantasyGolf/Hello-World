@@ -46,6 +46,8 @@ class LoginPage extends React.Component {
       error: null
     });
 
+    const { history } = this.props;
+
     const error = await this.login();
 
     if (!isNil(error) && !isNil(error.error)) {
@@ -53,6 +55,9 @@ class LoginPage extends React.Component {
         ...this.state,
         error
       });
+    }
+    else {
+      history.push('/mfg');
     }
   }
 

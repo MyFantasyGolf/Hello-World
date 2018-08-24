@@ -124,6 +124,7 @@ app.post('/api/league', league_service.createLeague);
 app.put('/api/league/:leagueId/setActiveRoster', roster_service.setActiveRoster);
 app.get('/api/league/:leagueId/myActiveRoster', roster_service.getActiveRoster);
 app.delete('/api/league/:leagueId/roster/:golferId', roster_service.releasePlayer);
+app.post('/api/league/:leagueId/roster', roster_service.addPlayer);
 app.get('/api/league/:leagueId/schedules', league_service.getLeagueSchedules);
 
 app.get('/api/league/:leagueId/availablePlayers', league_service.getAvailablePlayers);

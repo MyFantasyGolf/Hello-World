@@ -6,7 +6,6 @@ import {
   Switch,
   Redirect
 } from 'react-router-dom';
-import isNil from 'lodash/isNil';
 import { observer } from 'mobx-react';
 import inject from '../services/inject';
 
@@ -30,64 +29,18 @@ import HomePage from './HomePage';
 @observer
 class EntryPage extends React.Component {
 
-  componentWillMount() {
-    this.initialize();
-  }
-
-  async initialize() {
-    this.setState({ loading: true });
-    await this.props.AuthService.getCurrentUser();
-    this.setState({ loading: false });
-  }
-
-  buildLoadingScreen() {
-    return <div>Loading...</div>;
-  }
-
-  buildLoginRoute() {
-    if (isNil(this.props.AuthService.me)) {
-      return <Route path="/login" component={LoginPage} />;
-    }
-
-    return <Redirect from="/login" to="/" />;
-  }
-
-  checkForLoginRedirect = () => {
-    const { AuthService } = this.props;
-
-    if (isNil(AuthService.me)) {
-      this.loggedInUrl = window.location.pathname;
-      return <Redirect to="/login" />;
-    }
-
-    if (!isNil(this.loggedInUrl)) {
-      const uri = this.loggedInUrl;
-      this.loggedInUrl = null;
-      return <Redirect to={uri} />;
-    }
-  }
-
   buildLoadedScreen() {
     return (
       <MuiThemeProvider theme={muiTheme}>
         <BrowserRouter>
           <Switch>
-            { this.buildLoginRoute() }
-            { this.checkForLoginRedirect() }
+            <Route path="/login" component={LoginPage} />
             <Route path="/mfg" component={HomePage} />
-            <Redirect exact from="/" to="/mfg" />
+            <Redirect to="/mfg" />
           </Switch>
         </BrowserRouter>
       </MuiThemeProvider>
     );
-  }
-
-  buildPresentation() {
-    const view = this.state.loading === true ?
-      this.buildLoadingScreen() :
-      this.buildLoadedScreen();
-
-    return view;
   }
 
   render() {

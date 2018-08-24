@@ -85,6 +85,15 @@ class RosterService {
   }
 
   @action
+  async addPlayer(leagueId, golfer) {
+    await mfgFetch(`/api/league/${leagueId}/roster`,
+      {
+        method: 'POST',
+        body: JSON.stringify(golfer)
+      });
+  }
+
+  @action
   async getAvailablePlayers(league, force = false) {
 
     if (isNil(league) && force === false) {

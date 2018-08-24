@@ -38,6 +38,12 @@
         margin-right: 8px;
       }
     }
+
+    .roster-tables {
+      @media only screen and (min-width: $break_point) {
+        display: flex;
+      }
+    }
   }
 
   .roster-list {
