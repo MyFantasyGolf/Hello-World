@@ -8,7 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 
-const OkCancelDialog = ({text, title, callback, open}) => {
+const OkCancelDialog = ({text, title, callback, open, cancel}) => {
 
   return (
     <Dialog
@@ -23,13 +23,15 @@ const OkCancelDialog = ({text, title, callback, open}) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button
-          type="flat"
-          color="secondary"
-          onClick={() => {callback(false); }}
-        >
-          Cancel
-        </Button>
+        { cancel &&
+          <Button
+            type="flat"
+            color="secondary"
+            onClick={() => {callback(false); }}
+          >
+            Cancel
+          </Button>
+        }
         <Button
           type="raised"
           color="primary"
@@ -46,13 +48,15 @@ OkCancelDialog.propTypes = {
   text: PropTypes.string,
   title: PropTypes.string,
   callback: PropTypes.func,
-  open: PropTypes.bool
+  open: PropTypes.bool,
+  cancel: PropTypes.bool
 };
 
 OkCancelDialog.defaultProps = {
   callback: () => {},
   text: 'Are you sure?',
-  title: 'Confirm'
+  title: 'Confirm',
+  cancel: true
 };
 
 export default OkCancelDialog;

@@ -46,6 +46,27 @@
     }
   }
 
+  .start-new-year {
+    padding: 8px;
+    margin: 4px;
+    border-radius: 6px;
+    background-color: $dark;
+    color: $light;
+    font-size: 24px;
+    display: flex;
+    cursor: pointer;
+
+    .icon {
+      padding-top: 4px;
+      font-weight: bolder;
+    }
+
+    &:hover {
+      background-color: $light;
+      color: white;
+    }
+  }
+
   .expanded {
     display: none;
 

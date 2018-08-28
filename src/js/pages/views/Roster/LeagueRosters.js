@@ -22,7 +22,8 @@ class LeagueRosters extends React.Component {
     this.state = {
       lastSelectedLeague: undefined,
       team: {},
-      activeGolferDialog: false
+      activeGolferDialog: false,
+      addPlayerDialog: false
     };
   }
 
@@ -114,6 +115,16 @@ class LeagueRosters extends React.Component {
 
     LoadingService.startLoading('leagueRosters');
 
+    if (LeagueService.selectedLeague.draft.rounds.length <=
+      this.state.team.currentRoster.length) {
+      this.setState({
+        ...this.state,
+        addPlayerDialog: true
+      });
+      LoadingService.stopLoading('leagueRosters');
+      return;
+    }
+
     await RosterService.addPlayer(
       LeagueService.selectedLeague._id,
       golfer
@@ -123,7 +134,7 @@ class LeagueRosters extends React.Component {
       LeagueService.selectedLeague._id,
       true
     );
-    
+
     await this.loadMyTeam();
 
     LoadingService.stopLoading('leagueRosters');
@@ -227,6 +238,13 @@ class LeagueRosters extends React.Component {
     });
   }
 
+  clearAddPlayerError = () => {
+    this.setState({
+      ...this.state,
+      addPlayerDialog: false
+    });
+  }
+
   addPlayerToMyList = (player) => {
     this.props.RosterService.addPlayerToMyList(
       this.props.LeagueService.selectedLeague, player);
@@ -312,6 +330,12 @@ class LeagueRosters extends React.Component {
 
     const activeErrorText = `You cannot have more than ${activeGolfers} ` +
       'active golfers. De-activate someone else first.';
+
+    const playerLimit = isNil(LeagueService.selectedLeague.draft) ?
+      4 : LeagueService.selectedLeague.draft.rounds.length;
+    const addPlayerErrorText = 'You cannot have more than ' +
+      `${playerLimit}` +
+      ' players on your roster.';
     const { activeGolfers } = LeagueService.selectedLeague;
 
     return (
@@ -321,6 +345,13 @@ class LeagueRosters extends React.Component {
           title="Error"
           callback={this.clearActiveError}
           open={this.state.activeGolferDialog}
+        />
+        <OkCancelDialog
+          text={addPlayerErrorText}
+          title="Error"
+          callback={this.clearAddPlayerError}
+          open={this.state.addPlayerDialog}
+          cancel={false}
         />
         { this.getContent(availablePlayers, myDraftList) }
       </div>

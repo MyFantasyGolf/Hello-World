@@ -5,6 +5,8 @@ import isNil from 'lodash/isNil';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
+import IconButton from '@material-ui/core/IconButton';
+import Icon from '@material-ui/core/Icon';
 
 import RosterTable from './RosterTable';
 import AvailablePlayerTable from './AvailablePlayerTable';
@@ -18,7 +20,8 @@ class RosterView extends React.Component {
     super(props);
 
     this.state = {
-      schedule: undefined
+      schedule: undefined,
+      showAvailable: false
     };
   }
 
@@ -31,6 +34,22 @@ class RosterView extends React.Component {
     this.setState({
       ...this.state,
       schedule: this.props.schedules[0].key
+    });
+  }
+
+  showAvailablePlayers = () => {
+    this.setState({
+      ...this.state,
+      showAvailable: true
+    });
+  }
+
+  addPlayer = async (golfer) => {
+    await this.props.addPlayer(golfer);
+
+    this.setState({
+      ...this.state,
+      showAvailable: false
     });
   }
 
@@ -99,14 +118,63 @@ class RosterView extends React.Component {
     });
   }
 
-  render() {
+  getButtonPanel = () => {
+    return (
+      <div className="button-panel show-available">
+        <IconButton
+          variant=""
+          className="icon icon-show-available"
+          onClick={ this.showAvailablePlayers }>
+          <Icon className="golf-icons-user-plus" />
+        </IconButton>
+      </div>
+    );
+  }
+
+  getRosterDisplay = () => {
 
     const {
       team,
       activeChange,
-      releasePlayer,
-      addPlayer } =
+      releasePlayer
+    } =
     this.props;
+
+    if( isNil(team) || isNil(team.activeMap)) {
+      return null;
+    }
+
+    return (
+      <div className="roster-tables">
+        { !this.state.showAvailable &&
+          <RosterTable
+            currentRoster={team.currentRoster}
+            activeRosterMap={team.activeMap[this.state.schedule]}
+            activeChange={
+              (golfer) => {
+                activeChange(golfer, this.state.schedule);
+              }
+            }
+            releasePlayer={(golfer) => { releasePlayer(golfer); }}
+            buttonPanel={this.getButtonPanel()}
+          />
+        }
+        { this.state.showAvailable &&
+          <AvailablePlayerTable
+            addPlayer={this.addPlayer}
+          />
+        }
+        <div className="large-screen-available-players">
+          <AvailablePlayerTable
+
+            addPlayer={this.addPlayer}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  render() {
 
     return (
       <div>
@@ -129,29 +197,10 @@ class RosterView extends React.Component {
 
         <div className="roster-lists">
           <div className="roster-list">
-            <div className="title">
-              My Roster
-            </div>
             <div className="instructions">
               { this.getInstructions()}
             </div>
-            { !isNil(team) && !isNil(team.activeMap) &&
-              <div className="roster-tables">
-                <RosterTable
-                  currentRoster={team.currentRoster}
-                  activeRosterMap={team.activeMap[this.state.schedule]}
-                  activeChange={
-                    (golfer) => {
-                      activeChange(golfer, this.state.schedule);
-                    }
-                  }
-                  releasePlayer={(golfer) => { releasePlayer(golfer); }}
-                />
-                <AvailablePlayerTable
-                  addPlayer={addPlayer}
-                />
-              </div>
-            }
+            {this.getRosterDisplay()}
           </div>
         </div>
 

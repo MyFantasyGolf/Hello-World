@@ -18,6 +18,13 @@ const getLeagueSchedules = async(request, response) => {
   response.send({schedules});
 }
 
+const isFinished = async(request, response) => {
+  const leagueId = request.params.leagueId;
+
+  const isIt = await leagueApi.isFinished(leagueId);
+  response.send({done: isIt});
+}
+
 const getMyInvitations = async (request, response) => {
   const userId = request.session.userId;
 
@@ -172,5 +179,6 @@ module.exports = {
   getMyInvitations,
   acceptInvitation,
   declineInvitation,
-  getLeagueSchedules
+  getLeagueSchedules,
+  isFinished
 };

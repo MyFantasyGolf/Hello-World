@@ -163,6 +163,19 @@ const getLeagueSchedules = async (leagueId) => {
   }
 };
 
+const isFinished = async(leagueId) => {
+  const schedules = await getLeagueSchedules(leagueId);
+
+  const lastDay = schedules.reduce( (lastEnd, schedule) => {
+    const schedEnd = moment(schedule.date.end, 'MM/DD/YYYY');
+    return schedEnd.isAfter(lastEnd) ? schedEnd : lastEnd
+  }, moment(0));
+
+  const today = moment();
+
+  return today.isAfter(lastDay);
+};
+
 const createLeague = async (league) => {
   const db = await conn.db;
   const coll = db.collection('leagues');
@@ -255,5 +268,6 @@ module.exports = {
   getLeagueInvitations,
   acceptInvitation,
   declineInvitation,
-  getLeagueSchedules
+  getLeagueSchedules,
+  isFinished
 };

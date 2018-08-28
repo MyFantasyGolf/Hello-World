@@ -5,6 +5,21 @@
   }
 }
 
+.large-screen-available-players {
+  @media only screen and (min-width: $break_point) {
+    flex-grow: 1;
+    display: block;
+  }
+
+  display: none;
+}
+
+.show-available {
+  @media only screen and (min-width: $break_point) {
+    display: none;
+  }
+}
+
 .available-player-table {
   flex-grow: 1;
   height: 100%;

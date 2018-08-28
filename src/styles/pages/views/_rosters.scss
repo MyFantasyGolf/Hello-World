@@ -74,6 +74,26 @@
       background-color: $dark;
       font-size: 24px;
       padding: 8px;
+      display: flex;
+      justify-content: space-between;
+
+
+      .button-panel {
+        color: $light;
+
+        .icon {
+          color: $light;
+
+          &:hover {
+            background-color: $light;
+            color: white;
+          }
+
+          &:active {
+            background-color: $dark
+          }
+        }
+      }
     }
 
     .body {

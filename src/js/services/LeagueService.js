@@ -138,6 +138,14 @@ class LeagueService {
 
     return schedules.schedules;
   }
+
+  async isFinished() {
+    const isIt =
+      await mfgFetch(`/api/league/${this.selectedLeague._id}/finished`,
+        {method: 'GET'});
+
+    return isIt.done;
+  }
 }
 
 export default LeagueService;

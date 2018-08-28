@@ -27,6 +27,23 @@ import inject from '../../../services/inject';
 @observer
 class MyLeagueView extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      done: false
+    };
+  }
+
+  async componentDidMount() {
+    const isIt = await this.props.LeagueService.isFinished();
+
+    this.setState({
+      ...this.state,
+      done: isIt
+    });
+  }
+
   navigate = (value) => {
     this.props.history.push(
       `/mfg/myleagues/${this.props.LeagueService.selectedLeague._id}` +
@@ -62,7 +79,7 @@ class MyLeagueView extends React.Component {
             <a>Return home</a>
 
             <div className="league-name">
-              {this.props.LeagueService.selectedLeague.name}
+              <div>{this.props.LeagueService.selectedLeague.name}</div>
             </div>
           </div>
 
@@ -71,6 +88,13 @@ class MyLeagueView extends React.Component {
           </div>
 
         </div>
+
+        { this.state.done &&
+          <div className="start-new-year">
+            <Icon className="icon golf-icons-golf-tee" />
+            <div>Start Next Season</div>
+          </div>
+        }
 
         <div className="content-parent">
           <div className="expanded">

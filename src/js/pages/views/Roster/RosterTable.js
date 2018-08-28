@@ -126,6 +126,10 @@ class RosterTable extends React.Component {
         <div className="roster-table">
           <div className="roster-lists">
             <div className="roster-list">
+              <div className="title">
+                <div>My Roster</div>
+                {this.props.buttonPanel}
+              </div>
               <div className="body">
                 {playerRows}
               </div>
@@ -142,7 +146,8 @@ RosterTable.propTypes = {
   activeRosterMap: PropTypes.any,
   RosterTableService: PropTypes.object,
   activeChange: PropTypes.func,
-  releasePlayer: PropTypes.func
+  releasePlayer: PropTypes.func,
+  buttonPanel: PropTypes.object
 };
 
 export default RosterTable;
