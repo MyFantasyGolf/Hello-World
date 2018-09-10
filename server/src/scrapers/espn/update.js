@@ -102,7 +102,15 @@ class EspnUpdater {
     const $ = cheerio.load(html);
     const rows = $('tr');
 
-    const seasonString = $($('select option')[2]).text();
+    const firstSeasonString = $($('select option')[1]).text();
+    const secondSeasonString = $($('select option')[2]).text();
+    const thisYear = season.getSeason();
+    const testString = `${this.Year - 1}-${thisYear-2000}`;
+
+    const seasonString = firstSeasonString.indexOf(testString) !== -1 ?
+      firstSeasonString : secondSeasonString;
+
+    console.log(`${firstSeasonString} ${secondSeasonString} ${seasonString}`);
 
     const entries = [];
 

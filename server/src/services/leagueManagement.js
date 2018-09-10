@@ -70,6 +70,18 @@ const createLeague = async (request, response) => {
   response.send({status: 'success'});
 };
 
+const createNextYear = async (request, response) => {
+  const leagueId = request.params.leagueId;
+
+  if (isNil(leagueId)) {
+    response.status(500).send('Invalid league ID.');
+    return;
+  }
+
+  const newLeague = await leagueApi.createNextYear(leagueId);
+  response.send({stauts: 'OK'});
+};
+
 const getAvailablePlayers = async (request, response) => {
   const leagueId = request.params.leagueId;
 
@@ -180,5 +192,6 @@ module.exports = {
   acceptInvitation,
   declineInvitation,
   getLeagueSchedules,
-  isFinished
+  isFinished,
+  createNextYear
 };

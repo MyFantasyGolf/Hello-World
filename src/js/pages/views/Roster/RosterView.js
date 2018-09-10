@@ -31,9 +31,26 @@ class RosterView extends React.Component {
       return;
     }
 
+    const today = moment();
+
+    const closestSchedule =
+      this.props.schedules.reduce( (closest, schedule) => {
+        const winningMoment = moment(closest.date.end, 'MM/DD/YYYY');
+        const winningDiff = Math.abs(winningMoment.diff(today));
+
+        const scheduleMoment = moment(schedule.date.end, 'MM/DD/YYYY');
+        const scheduleDiff = Math.abs(scheduleMoment.diff(today));
+
+        if (winningDiff < scheduleDiff) {
+          return closest;
+        }
+
+        return schedule;
+      }, this.props.schedules[0]);
+
     this.setState({
       ...this.state,
-      schedule: this.props.schedules[0].key
+      schedule: closestSchedule.key
     });
   }
 

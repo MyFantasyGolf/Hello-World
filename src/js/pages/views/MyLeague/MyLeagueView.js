@@ -23,7 +23,7 @@ import {
 import { observer } from 'mobx-react';
 import inject from '../../../services/inject';
 
-@inject('LeagueService')
+@inject('LeagueService', 'LoadingService')
 @observer
 class MyLeagueView extends React.Component {
 
@@ -65,6 +65,18 @@ class MyLeagueView extends React.Component {
     return uriParts[3];
   }
 
+  startNewSeason = async () => {
+    const {LoadingService, LeagueService} = this.props;
+    LoadingService.startLoading('myLeagueView');
+
+    const leagueId = LeagueService.selectedLeague._id;
+    await LeagueService.startNewSeason(leagueId);
+
+    LoadingService.stopLoading('myLeagueView');
+
+    history.push('mfg/home');
+  }
+
   render() {
 
     const leagueId = this.getLeagueId();
@@ -90,7 +102,7 @@ class MyLeagueView extends React.Component {
         </div>
 
         { this.state.done &&
-          <div className="start-new-year">
+          <div className="start-new-year" onClick={this.startNewSeason}>
             <Icon className="icon golf-icons-golf-tee" />
             <div>Start Next Season</div>
           </div>
@@ -168,7 +180,8 @@ class MyLeagueView extends React.Component {
 
 MyLeagueView.propTypes = {
   history: PropTypes.object,
-  LeagueService: PropTypes.object
+  LeagueService: PropTypes.object,
+  LoadingService: PropTypes.object
 };
 
 export default withRouter(MyLeagueView);

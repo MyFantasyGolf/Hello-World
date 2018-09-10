@@ -139,6 +139,10 @@ class LeagueService {
     return schedules.schedules;
   }
 
+  async startNewSeason(leagueId) {
+    await mfgFetch(`/api/league/${leagueId}`, {method: 'POST'});
+  }
+
   async isFinished() {
     const isIt =
       await mfgFetch(`/api/league/${this.selectedLeague._id}/finished`,

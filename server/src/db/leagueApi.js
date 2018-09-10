@@ -3,7 +3,8 @@ const season = require('../utils/season');
 const userApi = require('./userApi');
 const moment = require('moment');
 const isNil = require('lodash/isNil');
-const isString = require('lodash/isNil');
+const isString = require('lodash/isString');
+const cloneDeep = require('lodash/cloneDeep');
 const ObjectId = require('mongodb').ObjectId;
 const resultsApi = require('./resultsApi');
 
@@ -166,6 +167,10 @@ const getLeagueSchedules = async (leagueId) => {
 const isFinished = async(leagueId) => {
   const schedules = await getLeagueSchedules(leagueId);
 
+  if (isNil(isFinished)) {
+    return true;
+  }
+
   const lastDay = schedules.reduce( (lastEnd, schedule) => {
     const schedEnd = moment(schedule.date.end, 'MM/DD/YYYY');
     return schedEnd.isAfter(lastEnd) ? schedEnd : lastEnd
@@ -203,6 +208,74 @@ const createLeague = async (league) => {
   catch(err) {
     console.log(`Error saving league: ${err}`);
   }
+};
+
+const createNextYear = async (leagueId) => {
+  const league = await getLeague(leagueId);
+
+  const newLeague = cloneDeep(league);
+  newLeague.draft = {
+    state: 'PREDRAFT',
+    settings: {},
+    rounds: []
+  };
+
+  newLeague.season = league.year + 1;
+  newLeague.updated = '01-01-1980';
+
+  newLeague.teams.forEach( (team) => {
+    team.activeMap = {};
+    team.currentRoster = [];
+    team.draftList = [];
+  });
+
+  if (isNil(newLeague.archiveId)) {
+    newLeague.archiveId = league._id
+  }
+  else {
+    newLeague.archiveId = league.archiveId;
+  }
+
+  delete(newLeague._id);
+
+  await saveLeagueHistory(league);
+  await saveLeague(newLeague);
+};
+
+const saveLeagueHistory = async (league) => {
+  const leagueHistory = {}
+  leagueHistory.archiveId = isNil(league.archiveId) ?
+    leauge._id : league.archiveId;
+
+  leagueHistory.name = league.name;
+  leagueHistory.commissioner = league.commissioner;
+  leagueHistory.teams = [];
+  leagueHistory.year = league.year;
+
+  league.teams.forEach( (team) => {
+    const points = Object.keys(team.activeMap).reduce( (total, tourney) => {
+      const map = team.activeMap[tourney];
+      return map
+        .filter( (isPlayer) => {
+          return !isNil(isPlayer.score);
+        })
+        .reduce( (total, player) => {
+          return total + player.score;
+        }, 0);
+
+    }, 0);
+
+    leagueHistory.teams.push({
+      user: team.user,
+      name: team.name,
+      score: points
+    });
+  });
+
+  const db = await conn.db;
+  const coll = db.collection('league_history');
+
+  await coll.insertOne({...leagueHistory});
 };
 
 const saveLeague = async(league) => {
@@ -269,5 +342,6 @@ module.exports = {
   acceptInvitation,
   declineInvitation,
   getLeagueSchedules,
-  isFinished
+  isFinished,
+  createNextYear
 };
